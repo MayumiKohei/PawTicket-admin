@@ -31,7 +31,25 @@ export default function AdminLogin() {
 			];
 
 			if (adminUIDs.includes(userCredential.user.uid)) {
-				router.push("/");
+				// IDトークンを取得
+				const idToken = await userCredential.user.getIdToken();
+
+				// サーバーサイドでHttpOnlyクッキーを設定
+				const response = await fetch("/api/auth/login", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ idToken }),
+				});
+
+				const data = await response.json();
+
+				if (data.success) {
+					router.push("/");
+				} else {
+					setError("セッションの設定に失敗しました。");
+				}
 			} else {
 				setError("管理者権限がありません。");
 				await authB.signOut();
