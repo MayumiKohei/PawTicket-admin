@@ -1,42 +1,53 @@
+/* アプリケーション全体に適用されるグローバルスタイル */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	/* カスタム変数の定義 */
+	--primary-color: #007bff;
+	--secondary-color: #6c757d;
+	--success-color: #28a745;
+	--danger-color: #dc3545;
+	--warning-color: #ffc107;
+	--info-color: #17a2b8;
+	--light-color: #f8f9fa;
+	--dark-color: #343a40;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-html,
+/* フォント設定のデフォルト */
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+	font-family: var(--font-geist-sans), sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: var(--dark-color);
+	background-color: var(--light-color);
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* コード用フォント */
+code,
+pre,
+kbd,
+samp {
+	font-family: var(--font-geist-mono), monospace;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
+/* リンクスタイル */
 a {
-  color: inherit;
-  text-decoration: none;
+	color: var(--primary-color);
+	text-decoration: none;
+	transition: color 0.3s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+a:hover {
+	color: #0056b3;
+	text-decoration: underline;
 }
+
+/* ボタンのリセット */
+button {
+	cursor: pointer;
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+}
+
+/* 追加のカスタムスタイルはここに記述 */
