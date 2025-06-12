@@ -8,8 +8,8 @@ import { signOut } from "firebase/auth";
 import { authB } from "../firebase";
 import { useAuth } from "../components/AuthProvider";
 import { generateApplicationId } from "../../lib/utils";
-import { formatDate } from "../../components/common/formatDate";
-import { Icon } from "../../components/common/Icon";
+import { formatDate } from "../components/formatDate";
+import { Icon } from "../components/Icon";
 import { ApprovedPet } from "../../types/pet";
 import styles from "../index.module.scss";
 import localStyles from "./index.module.scss";
@@ -22,19 +22,27 @@ const PhotoModal = ({
 	photoUrl: string | null;
 	onClose: () => void;
 }) => {
+	// フォーカス時・キー操作用ハンドラ
+	const handleOverlayKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLDivElement>) => {
+			if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				onClose();
+			}
+		},
+		[onClose]
+	);
+
 	if (!photoUrl) return null;
 
 	return (
 		<div
 			className={localStyles.modalOverlay}
 			onClick={onClose}
-			onKeyDown={(e) => {
-				if (e.key === "Escape") {
-					onClose();
-				}
-			}}
+			onKeyDown={handleOverlayKeyDown}
 			role="button"
 			tabIndex={0}
+			aria-label="モーダルを閉じる"
 		>
 			<div
 				className={localStyles.photoModalContent}
@@ -79,19 +87,26 @@ const PetDetailModal = ({
 }) => {
 	const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
+	const handleOverlayKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLDivElement>) => {
+			if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				onClose();
+			}
+		},
+		[onClose]
+	);
+
 	if (!pet) return null;
 
 	return (
 		<div
 			className={localStyles.modalOverlay}
 			onClick={onClose}
-			onKeyDown={(e) => {
-				if (e.key === "Escape") {
-					onClose();
-				}
-			}}
+			onKeyDown={handleOverlayKeyDown}
 			role="button"
 			tabIndex={0}
+			aria-label="モーダルを閉じる"
 		>
 			<div
 				className={localStyles.modalContent}
@@ -105,12 +120,14 @@ const PetDetailModal = ({
 					<button
 						className={localStyles.closeButton}
 						onClick={onClose}
+						aria-label="閉じる"
 					>
 						<Icon name="close" />
 					</button>
 				</div>
 
 				<div className={localStyles.modalBody}>
+					{/* 各種詳細行 */}
 					<div className={localStyles.detailRow}>
 						<span className={localStyles.detailLabel}>申請ID:</span>
 						<span className={localStyles.detailValue}>
@@ -167,14 +184,14 @@ const PetDetailModal = ({
 									接種日:
 								</span>
 								<span className={localStyles.detailValue}>
-									{pet.petData.rabiesVaccine?.date
+									{pet.petData.rabiesVaccine.date
 										? formatDate(
 												pet.petData.rabiesVaccine.date
 										  )
 										: "不明"}
 								</span>
 							</div>
-							{pet.petData.rabiesVaccine?.certPhoto && (
+							{pet.petData.rabiesVaccine.certPhoto && (
 								<div className={localStyles.detailRow}>
 									<span className={localStyles.detailLabel}>
 										証明書:
@@ -188,6 +205,7 @@ const PetDetailModal = ({
 												)
 											}
 											className={localStyles.photoButton}
+											aria-label="証明書を拡大"
 										>
 											<Image
 												src={
@@ -219,14 +237,14 @@ const PetDetailModal = ({
 									接種日:
 								</span>
 								<span className={localStyles.detailValue}>
-									{pet.petData.mixedVaccine?.date
+									{pet.petData.mixedVaccine.date
 										? formatDate(
 												pet.petData.mixedVaccine.date
 										  )
 										: "不明"}
 								</span>
 							</div>
-							{pet.petData.mixedVaccine?.certPhoto && (
+							{pet.petData.mixedVaccine.certPhoto && (
 								<div className={localStyles.detailRow}>
 									<span className={localStyles.detailLabel}>
 										証明書:
@@ -240,6 +258,7 @@ const PetDetailModal = ({
 												)
 											}
 											className={localStyles.photoButton}
+											aria-label="証明書を拡大"
 										>
 											<Image
 												src={
@@ -302,7 +321,6 @@ function ApprovedPageContent() {
 		}
 	}, []);
 
-	// 承認済みペットデータを取得
 	const fetchApprovedPets = useCallback(async () => {
 		try {
 			setLoading(true);
@@ -310,11 +328,9 @@ function ApprovedPageContent() {
 			const data = await res.json();
 
 			if (!data.success) {
-				// Handle API error silently
 				return;
 			}
 
-			// 申請IDを生成してペットデータに追加
 			const petsWithApplicationId = data.approvedPets.map(
 				(pet: Omit<ApprovedPet, "applicationId">) => ({
 					...pet,
@@ -324,14 +340,12 @@ function ApprovedPageContent() {
 
 			setApprovedPets(petsWithApplicationId);
 		} catch {
-			// Handle fetch error silently
 			setApprovedPets([]);
 		} finally {
 			setLoading(false);
 		}
 	}, []);
 
-	// 現在時刻を更新
 	useEffect(() => {
 		const updateClock = () => {
 			const now = new Date();
@@ -348,12 +362,10 @@ function ApprovedPageContent() {
 		return () => clearInterval(timer);
 	}, []);
 
-	// コンポーネントマウント時にデータを取得
 	useEffect(() => {
 		fetchApprovedPets();
 	}, [fetchApprovedPets]);
 
-	// ナビゲーションアイテム
 	const navItems = [
 		{ name: "ダッシュボード", path: "/", icon: "dashboard" as const },
 		{ name: "承認待ち", path: "/pending", icon: "clock" as const },
@@ -367,15 +379,12 @@ function ApprovedPageContent() {
 			try {
 				const response = await fetch("/api/admin/revert-to-pending", {
 					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
 						userId: pet.userId,
 						petId: pet.petId,
 					}),
 				});
-
 				const data = await response.json();
 
 				if (data.success) {
@@ -383,7 +392,7 @@ function ApprovedPageContent() {
 						`${pet.applicationId} (${pet.petName}) を承認待ちに戻しました`
 					);
 					setSelectedPet(null);
-					fetchApprovedPets(); // データを再取得
+					fetchApprovedPets();
 				} else {
 					alert(`承認待ちに戻す処理に失敗しました: ${data.message}`);
 				}
@@ -396,13 +405,11 @@ function ApprovedPageContent() {
 
 	return (
 		<div className={styles.dashboard}>
-			{/* サイドバー */}
 			<aside className={styles.sidebar}>
 				<div className={styles.sidebar__header}>
 					<h1>PawTicket Admin</h1>
 					<p>管理パネル</p>
 				</div>
-
 				<nav className={styles.sidebar__nav}>
 					<ul>
 						{navItems.map((item) => (
@@ -422,7 +429,6 @@ function ApprovedPageContent() {
 						))}
 					</ul>
 				</nav>
-
 				<div className={styles.sidebar__footer}>
 					<div>現在時刻: {currentTime}</div>
 					<button
@@ -435,7 +441,6 @@ function ApprovedPageContent() {
 				</div>
 			</aside>
 
-			{/* メインコンテンツ */}
 			<main className={styles.content}>
 				<div className={styles.content__header}>
 					<h2>承認済み</h2>
@@ -447,78 +452,54 @@ function ApprovedPageContent() {
 					</button>
 				</div>
 
-				{/* 承認済みリスト */}
 				<div className={styles.content__card}>
 					<h3>承認済みのペット一覧 ({approvedPets.length}件)</h3>
 					<p>ペット情報をクリックすると詳細が表示されます。</p>
 
-					{(() => {
-						if (loading) {
-							return (
-								<div className={localStyles.loadingContainer}>
-									<p>データを読み込み中...</p>
+					{loading ? (
+						<div className={localStyles.loadingContainer}>
+							<p>データを読み込み中...</p>
+						</div>
+					) : approvedPets.length === 0 ? (
+						<div className={localStyles.emptyContainer}>
+							<p>承認済みのペットはありません。</p>
+						</div>
+					) : (
+						<div className={localStyles.petList}>
+							<div className={localStyles.petList__header}>
+								<div className={localStyles.petList__cell}>
+									申請ID
 								</div>
-							);
-						}
-
-						if (approvedPets.length === 0) {
-							return (
-								<div className={localStyles.emptyContainer}>
-									<p>承認済みのペットはありません。</p>
+								<div className={localStyles.petList__cell}>
+									ペット名
 								</div>
-							);
-						}
-
-						return (
-							<div className={localStyles.petList}>
-								<div className={localStyles.petList__header}>
-									<div className={localStyles.petList__cell}>
-										申請ID
-									</div>
-									<div className={localStyles.petList__cell}>
-										ペット名
-									</div>
-									<div className={localStyles.petList__cell}>
-										承認日
-									</div>
+								<div className={localStyles.petList__cell}>
+									承認日
 								</div>
-
-								{approvedPets.map((pet) => (
-									<button
-										key={`${pet.userId}-${pet.petId}`}
-										className={`${localStyles.petList__row} ${localStyles.listButton}`}
-										onClick={() => setSelectedPet(pet)}
-									>
-										<div
-											className={
-												localStyles.petList__cell
-											}
-										>
-											{pet.applicationId}
-										</div>
-										<div
-											className={
-												localStyles.petList__cell
-											}
-										>
-											{pet.petName}
-										</div>
-										<div
-											className={
-												localStyles.petList__cell
-											}
-										>
-											{formatDate(pet.approvedAt)}
-										</div>
-									</button>
-								))}
 							</div>
-						);
-					})()}
+							{approvedPets.map((pet) => (
+								<button
+									key={`${pet.userId}-${pet.petId}`}
+									className={`${localStyles.petList__row} ${localStyles.listButton}`}
+									onClick={() => setSelectedPet(pet)}
+									aria-label={`詳細を表示: ${pet.petName}`}
+								>
+									<div className={localStyles.petList__cell}>
+										{pet.applicationId}
+									</div>
+									<div className={localStyles.petList__cell}>
+										{pet.petName}
+									</div>
+									<div className={localStyles.petList__cell}>
+										{formatDate(pet.approvedAt)}
+									</div>
+								</button>
+							))}
+						</div>
+					)}
 				</div>
 			</main>
 
-			{/* モーダル */}
 			<PetDetailModal
 				pet={selectedPet}
 				onClose={() => setSelectedPet(null)}
@@ -531,7 +512,6 @@ function ApprovedPageContent() {
 export default function ApprovedPage() {
 	const { user, loading: authLoading, isAdmin } = useAuth();
 
-	// 認証チェック
 	if (authLoading) {
 		return <div className={styles.authLoading}>認証情報を確認中...</div>;
 	}

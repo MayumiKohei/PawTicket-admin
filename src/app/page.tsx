@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { authB } from "./firebase"; // 管理画面用の Firebase Client SDK（auth）のみ
@@ -90,6 +90,7 @@ const Icon = ({ name }: { name: string }) => {
 // ダッシュボードコンテンツコンポーネント
 function DashboardContent() {
 	const pathname = usePathname();
+	const router = useRouter();
 
 	// 変更: 集計データを API から取得するための state
 	const [dashboardStats, setDashboardStats] = useState<{
@@ -110,7 +111,16 @@ function DashboardContent() {
 
 	const handleLogout = async () => {
 		try {
+			// Firebase Authからサインアウト
 			await signOut(authB);
+
+			// サーバーサイドでクッキーを削除
+			await fetch("/api/auth/logout", {
+				method: "POST",
+			});
+
+			// ログインページにリダイレクト
+			router.push("/auth/login");
 		} catch (error) {
 			console.error("ログアウトエラー:", error);
 		}
@@ -343,40 +353,42 @@ function DashboardContent() {
 	);
 }
 
-// 認証チェックを行う部分は変更なし
+// 認証チェックとリダイレクト処理
 export default function Dashboard() {
 	const { user, loading: authLoading, isAdmin } = useAuth();
+	const router = useRouter();
+
+	// 認証状態に応じてリダイレクト処理
+	useEffect(() => {
+		if (!authLoading) {
+			if (!user) {
+				// ログインしていない場合はログインページにリダイレクト
+				router.push("/auth/login");
+				return;
+			}
+
+			if (!isAdmin) {
+				// ログインしているが管理者権限がない場合
+				console.warn("管理者権限が必要です");
+			}
+		}
+	}, [user, authLoading, isAdmin, router]);
 
 	if (authLoading) {
+		return <div className={styles.authLoading}>認証情報を確認中...</div>;
+	}
+
+	if (!user) {
+		// リダイレクト中の表示
 		return (
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					height: "100vh",
-					fontSize: "1.2rem",
-				}}
-			>
-				認証情報を確認中...
+			<div className={styles.authLoading}>
+				ログインページにリダイレクト中...
 			</div>
 		);
 	}
 
-	if (!user || !isAdmin) {
-		return (
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					height: "100vh",
-					fontSize: "1.2rem",
-				}}
-			>
-				管理者権限が必要です
-			</div>
-		);
+	if (!isAdmin) {
+		return <div className={styles.authError}>管理者権限が必要です</div>;
 	}
 
 	return <DashboardContent />;
