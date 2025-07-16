@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminStorage } from "@/lib/firebaseAdmin";
+import { ptAdminStorage } from "@/lib/firebaseAdmin";
 
-const bucket = adminStorage.bucket();
+const bucket = ptAdminStorage.bucket();
 
 export async function POST(request: NextRequest) {
 	try {
