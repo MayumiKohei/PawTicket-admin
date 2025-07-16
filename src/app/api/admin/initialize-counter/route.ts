@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebaseAdmin";
+import { pawticketDb } from "../../../../lib/firebaseAdmin";
 
 // Node.js ランタイムで実行する
 export const runtime = "nodejs";
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 		const initialId = startId || 1;
 
 		// カウンターを初期化
-		const counterRef = adminDb
+		const counterRef = pawticketDb
 			.collection("system")
 			.doc("applicationCounter");
 		await counterRef.set({ currentId: initialId });
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 // 現在のカウンター値を取得
 export async function GET() {
 	try {
-		const counterRef = adminDb
+		const counterRef = pawticketDb
 			.collection("system")
 			.doc("applicationCounter");
 		const counterDoc = await counterRef.get();

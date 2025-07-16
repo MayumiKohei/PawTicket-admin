@@ -1,17 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import { signOut } from "firebase/auth";
-import { authB } from "../firebase";
 import { useAuth } from "../components/AuthProvider";
 import { formatDate } from "../components/formatDate";
 import { Icon } from "../components/Icon";
 import { ApprovedPet } from "../../types/pet";
 import styles from "../index.module.scss";
 import localStyles from "./index.module.scss";
+import { Sidebar } from "../components/Sidebar";
 
 // 写真拡大表示モーダル
 const PhotoModal = ({
@@ -306,19 +303,9 @@ const PetDetailModal = ({
 
 // 承認済みページコンテンツコンポーネント
 function ApprovedPageContent() {
-	const pathname = usePathname();
-	const [currentTime, setCurrentTime] = useState("");
 	const [approvedPets, setApprovedPets] = useState<ApprovedPet[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedPet, setSelectedPet] = useState<ApprovedPet | null>(null);
-
-	const handleLogout = useCallback(async () => {
-		try {
-			await signOut(authB);
-		} catch {
-			// Handle logout error silently
-		}
-	}, []);
 
 	const fetchApprovedPets = useCallback(async () => {
 		try {
@@ -340,32 +327,8 @@ function ApprovedPageContent() {
 	}, []);
 
 	useEffect(() => {
-		const updateClock = () => {
-			const now = new Date();
-			const timeStr = now.toLocaleTimeString("ja-JP", {
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-			});
-			setCurrentTime(timeStr);
-		};
-
-		updateClock();
-		const timer = setInterval(updateClock, 1000);
-		return () => clearInterval(timer);
-	}, []);
-
-	useEffect(() => {
 		fetchApprovedPets();
 	}, [fetchApprovedPets]);
-
-	const navItems = [
-		{ name: "ダッシュボード", path: "/", icon: "dashboard" as const },
-		{ name: "承認待ち", path: "/pending", icon: "clock" as const },
-		{ name: "承認済み", path: "/approved", icon: "check-circle" as const },
-		{ name: "却下済み", path: "/rejected", icon: "x-circle" as const },
-		{ name: "プッシュ通知", path: "/notifications", icon: "bell" as const },
-	];
 
 	const handleRevertToPending = useCallback(
 		async (pet: ApprovedPet) => {
@@ -398,42 +361,7 @@ function ApprovedPageContent() {
 
 	return (
 		<div className={styles.dashboard}>
-			<aside className={styles.sidebar}>
-				<div className={styles.sidebar__header}>
-					<h1>PawTicket Admin</h1>
-					<p>管理パネル</p>
-				</div>
-				<nav className={styles.sidebar__nav}>
-					<ul>
-						{navItems.map((item) => (
-							<li key={item.path}>
-								<Link
-									href={item.path}
-									className={
-										pathname === item.path
-											? styles.active
-											: ""
-									}
-								>
-									<Icon name={item.icon} />
-									{item.name}
-								</Link>
-							</li>
-						))}
-					</ul>
-				</nav>
-				<div className={styles.sidebar__footer}>
-					<div>現在時刻: {currentTime}</div>
-					<button
-						onClick={handleLogout}
-						className={localStyles.logoutButton}
-					>
-						<Icon name="logout" />
-						ログアウト
-					</button>
-				</div>
-			</aside>
-
+			<Sidebar />
 			<main className={styles.content}>
 				<div className={styles.content__header}>
 					<h2>承認済み</h2>

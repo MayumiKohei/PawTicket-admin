@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebaseAdmin";
+import { pawticketDb } from "../../../../lib/firebaseAdmin";
 
 // Node.js ランタイムで実行する
 export const runtime = "nodejs";
@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export async function GET() {
 	try {
 		// 全ユーザーを取得
-		const usersSnapshot = await adminDb.collection("users").get();
+		const usersSnapshot = await pawticketDb.collection("users").get();
 
 		const pendingPets: Array<{
 			userId: string;
@@ -21,7 +21,7 @@ export async function GET() {
 		// 各ユーザーのpetsサブコレクションから status == "申請中" のペットを取得
 		for (const userDoc of usersSnapshot.docs) {
 			try {
-				const petsSnapshot = await adminDb
+				const petsSnapshot = await pawticketDb
 					.collection("users")
 					.doc(userDoc.id)
 					.collection("pets")
