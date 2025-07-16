@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { authB } from "../firebase";
 import { useAuth } from "../components/AuthProvider";
-import { generateApplicationId } from "../../lib/utils";
 import styles from "../index.module.scss";
 import localStyles from "./index.module.scss";
 
@@ -502,15 +501,8 @@ function PendingPageContent() {
 				return;
 			}
 
-			// 申請IDを生成してペットデータに追加
-			const petsWithApplicationId = data.pendingPets.map(
-				(pet: Omit<PendingPet, "applicationId">) => ({
-					...pet,
-					applicationId: generateApplicationId(pet.userId, pet.petId),
-				})
-			);
-
-			setPendingPets(petsWithApplicationId);
+			// データベースから取得した申請IDを使用
+			setPendingPets(data.pendingPets);
 		} catch (error) {
 			console.error("承認待ちデータの取得に失敗しました:", error);
 			setPendingPets([]);
