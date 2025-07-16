@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebaseAdmin";
+import { pawticketDb } from "../../../../lib/firebaseAdmin";
 
 // Node.js ランタイムで実行する
 export const runtime = "nodejs";
@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 // 次の申請IDを取得する関数
 export async function GET() {
 	try {
-		const counterRef = adminDb
+		const counterRef = pawticketDb
 			.collection("system")
 			.doc("applicationCounter");
 		const counterDoc = await counterRef.get();
@@ -40,12 +40,12 @@ export async function GET() {
 // 申請IDを生成してカウンターをインクリメントする関数
 export async function POST() {
 	try {
-		const counterRef = adminDb
+		const counterRef = pawticketDb
 			.collection("system")
 			.doc("applicationCounter");
 
 		// トランザクションを使用してカウンターを安全にインクリメント
-		const result = await adminDb.runTransaction(async (transaction) => {
+		const result = await pawticketDb.runTransaction(async (transaction) => {
 			const counterDoc = await transaction.get(counterRef);
 
 			let currentId = 1;

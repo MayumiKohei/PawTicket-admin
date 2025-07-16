@@ -4,41 +4,73 @@ import { join } from "path";
 import * as admin from "firebase-admin";
 import "firebase/storage";
 
-// ① サービスアカウント JSON のパスを組み立て
-const serviceAccountPath = join(
+// 管理用
+const ptAdminServiceAccountPath = join(
 	process.cwd(),
 	"firebase-admin",
 	"pt-admin-firebase.json"
 );
+const ptAdminRaw = readFileSync(ptAdminServiceAccountPath, {
+	encoding: "utf-8",
+});
+const ptAdminServiceAccount = JSON.parse(ptAdminRaw);
 
-// ② JSON ファイルを同期読み込みしてパース
-//    JSON はスネークケースのキーをもつ想定
-const raw = readFileSync(serviceAccountPath, { encoding: "utf-8" });
-const serviceAccount = JSON.parse(raw) as {
-	project_id: string;
-	private_key: string;
-	client_email: string;
-	// その他のキーは省略
-};
+// アプリ用
+const pawticketAppServiceAccountPath = join(
+	process.cwd(),
+	"firebase-admin",
+	"pawticket-app-firebase.json"
+);
+const pawticketAppRaw = readFileSync(pawticketAppServiceAccountPath, {
+	encoding: "utf-8",
+});
+const pawticketAppServiceAccount = JSON.parse(pawticketAppRaw);
 
-// ③ Admin SDK がすでに初期化済みかどうかをチェック
-if (!admin.apps.length) {
-	admin.initializeApp({
-		credential: admin.credential.cert({
-			// ここで必ずスネークケースのキーを使う
-			projectId: serviceAccount.project_id,
-			clientEmail: serviceAccount.client_email,
-			// privateKey は改行を復元する
-			privateKey: serviceAccount.private_key.replace(/\\n/g, "\n"),
-		}),
-		storageBucket: "pt-admin-4d877.firebasestorage.app", // ←ここを必ず指定
-		// （必要に応じて databaseURL や storageBucket を指定）
-		// databaseURL: "https://<APP_PROJECT_ID>.firebaseio.com",
-		// storageBucket: "<APP_PROJECT_ID>.appspot.com",
-	});
+function getAppByName(name: string): admin.app.App | undefined {
+	return admin.apps.find((app) => app?.name === name) || undefined;
 }
 
-// ④ Exportしておく
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
-export const adminStorage = admin.storage();
+// 管理用Admin
+const ptAdminApp =
+	getAppByName("pt-admin") ??
+	admin.initializeApp(
+		{
+			credential: admin.credential.cert({
+				projectId: ptAdminServiceAccount.project_id,
+				clientEmail: ptAdminServiceAccount.client_email,
+				privateKey: ptAdminServiceAccount.private_key.replace(
+					/\n/g,
+					"\n"
+				),
+			}),
+			storageBucket: "pt-admin-4d877.firebasestorage.app",
+		},
+		"pt-admin"
+	);
+
+// アプリ用Admin
+const pawticketApp =
+	getAppByName("pawticket-app") ??
+	admin.initializeApp(
+		{
+			credential: admin.credential.cert({
+				projectId: pawticketAppServiceAccount.project_id,
+				clientEmail: pawticketAppServiceAccount.client_email,
+				privateKey: pawticketAppServiceAccount.private_key.replace(
+					/\n/g,
+					"\n"
+				),
+			}),
+			storageBucket: "pawticket-6b651.firebasestorage.app",
+		},
+		"pawticket-app"
+	);
+
+// エクスポート
+export const ptAdminAuth = ptAdminApp.auth();
+export const ptAdminDb = ptAdminApp.firestore();
+export const ptAdminStorage = ptAdminApp.storage();
+
+export const pawticketAuth = pawticketApp.auth();
+export const pawticketDb = pawticketApp.firestore();
+export const pawticketStorage = pawticketApp.storage();

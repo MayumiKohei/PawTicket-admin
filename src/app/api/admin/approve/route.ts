@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebaseAdmin";
+import { pawticketDb } from "../../../../lib/firebaseAdmin";
 
 // Node.js ランタイムで実行する
 export const runtime = "nodejs";
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// ペットのステータスを"認証済み"に更新
-		const petRef = adminDb
+		const petRef = pawticketDb
 			.collection("users")
 			.doc(userId)
 			.collection("pets")
