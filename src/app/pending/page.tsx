@@ -501,15 +501,8 @@ function PendingPageContent() {
 				return;
 			}
 
-			// 申請IDを申請順に生成してペットデータに追加
-			const petsWithApplicationId = data.pendingPets.map(
-				(pet: Omit<PendingPet, "applicationId">, index: number) => ({
-					...pet,
-					applicationId: `P${String(index + 1).padStart(6, "0")}`,
-				})
-			);
-
-			setPendingPets(petsWithApplicationId);
+			// データベースから取得した申請IDを使用
+			setPendingPets(data.pendingPets);
 		} catch (error) {
 			console.error("承認待ちデータの取得に失敗しました:", error);
 			setPendingPets([]);

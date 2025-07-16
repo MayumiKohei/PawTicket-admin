@@ -1,17 +1,21 @@
 // サイドバーとレイアウト
 .container {
-	display: grid;
-	grid-template-columns: 250px 1fr;
+	display: flex;
 	min-height: 100vh;
+	background-color: #f5f7fa;
 }
 
-// サイドバースタイル
 .sidebar {
-	background-color: #1e293b;
-	color: #f8fafc;
-	padding: 1.5rem;
+	width: 260px;
+	background: linear-gradient(180deg, #2c3e50 0%, #1a2a3a 100%);
+	color: white;
+	padding: 1.5rem 0;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 	display: flex;
 	flex-direction: column;
+	position: fixed;
+	height: 100vh;
+	z-index: 10;
 
 	&__header {
 		margin-bottom: 2rem;
@@ -93,23 +97,15 @@
 .main {
 	background-color: #f8fafc;
 	padding: 1.5rem;
+	min-height: 80vh;
+	margin-left: 260px;
+	width: 100%;
+}
 
-	&__header {
-		margin-bottom: 1.5rem;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid #e2e8f0;
-	}
-
-	&__title {
-		font-size: 1.5rem;
-		font-weight: 600;
-		color: #1e293b;
-	}
-
-	&__content {
-		display: grid;
-		gap: 2rem;
-	}
+.main__content {
+	display: grid;
+	gap: 2.5rem;
+	width: 100%;
 }
 
 // フォームセクション
@@ -118,6 +114,8 @@
 	border-radius: 0.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	padding: 1.5rem;
+	max-width: 100%;
+	margin-bottom: 2rem;
 
 	&__title {
 		font-size: 1.25rem;
@@ -228,6 +226,7 @@
 	border-radius: 0.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	padding: 1.5rem;
+	max-width: 100%;
 
 	&__title {
 		font-size: 1.25rem;
