@@ -1,4 +1,4 @@
-name: Deploy to Firebase Hosting on merge
+name: Deploy to Firebase on merge
 on:
     push:
         branches:
@@ -18,29 +18,20 @@ jobs:
                   PAWTICKET_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PAWTICKET_APP_6B651 }}
               run: |
                   mkdir -p firebase-admin
-                  # 管理画面用
-                  echo "$PT_ADMIN_JSON" > firebase-admin/pt-admin-firebase.json
-                  # アプリ用
-                  echo "$PAWTICKET_JSON" > firebase-admin/pawticket-app-firebase.json
+                  echo "$PT_ADMIN_JSON"   > firebase-admin/pt-admin-firebase.json
+                  echo "$PAWTICKET_JSON"  > firebase-admin/pawticket-app-firebase.json
                   chmod 600 firebase-admin/*.json
             # ────────────────────────────────────────────
             - run: yarn install --frozen-lockfile && yarn build
 
-            # Hosting のみデプロイ
-            - uses: FirebaseExtended/action-hosting-deploy@v0
+            # ────────────────────────────────────────────
+            # ② Hosting と Functions をまとめてデプロイ
+            - name: Deploy Hosting & Functions
+              uses: FirebaseExtended/action-hosting-deploy@v0
               with:
                   repoToken: ${{ secrets.GITHUB_TOKEN }}
-                  firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
-                  channelId: live
                   projectId: pt-admin-4d877
-
-            # ────────────────────────────────────────────
-            # 追加：Firebase Functions をデプロイ
-            - name: Deploy Firebase Functions
-              env:
-                  # 先ほど書き出したサービスアカウントを指す
-                  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-admin/pt-admin-firebase.json
-              run: |
-                  # Firebase CLI がなければ npx でその場で
-                  npx firebase deploy --only functions --project pt-admin-4d877
+                  channelId: live
+                  firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
+                  target: hosting,functions
             # ────────────────────────────────────────────
