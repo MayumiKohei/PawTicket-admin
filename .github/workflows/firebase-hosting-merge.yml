@@ -36,8 +36,11 @@ jobs:
                   channelId: live
 
             # Functions
+            - name: Install Firebase CLI
+              run: npm install -g firebase-tools
+
             - name: Deploy Functions
-              run: npx firebase deploy --only functions --project pt-admin-4d877 --token "$FIREBASE_TOKEN"
+              run: firebase deploy --only functions --project pt-admin-4d877 --token "$FIREBASE_TOKEN"
               env:
                   FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
             # ────────────────────────────────────────────
