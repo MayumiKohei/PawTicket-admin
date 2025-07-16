@@ -17,6 +17,7 @@ export async function GET() {
 			rejectedAt: FirebaseFirestore.Timestamp | string | null;
 			rejectionReason?: string;
 			petData: Record<string, unknown>;
+			applicationId: string;
 		}> = [];
 
 		// 各ユーザーのpetsサブコレクションから status == "却下済み" のペットを取得
@@ -40,6 +41,7 @@ export async function GET() {
 						rejectedAt: petData.rejectedAt,
 						rejectionReason: petData.rejectionReason,
 						petData: petData,
+						applicationId: petData.applicationId || "不明",
 					});
 				});
 			} catch (error) {
