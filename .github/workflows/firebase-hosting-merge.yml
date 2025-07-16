@@ -25,13 +25,19 @@ jobs:
             - run: yarn install --frozen-lockfile && yarn build
 
             # ────────────────────────────────────────────
-            # ② Hosting と Functions をまとめてデプロイ
-            - name: Deploy Hosting & Functions
+            # Hosting と Functions をまとめてデプロイ（公式CLIアクション）
+            # Hosting
+            - name: Deploy Hosting
               uses: FirebaseExtended/action-hosting-deploy@v0
               with:
                   repoToken: ${{ secrets.GITHUB_TOKEN }}
+                  firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
                   projectId: pt-admin-4d877
                   channelId: live
-                  firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
-                  target: hosting,functions
+
+            # Functions
+            - name: Deploy Functions
+              run: npx firebase deploy --only functions --project pt-admin-4d877 --token "$FIREBASE_TOKEN"
+              env:
+                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
             # ────────────────────────────────────────────
