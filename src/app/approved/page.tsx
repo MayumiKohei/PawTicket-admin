@@ -7,7 +7,6 @@ import { useState, useEffect, useCallback } from "react";
 import { signOut } from "firebase/auth";
 import { authB } from "../firebase";
 import { useAuth } from "../components/AuthProvider";
-import { generateApplicationId } from "../../lib/utils";
 import { formatDate } from "../components/formatDate";
 import { Icon } from "../components/Icon";
 import { ApprovedPet } from "../../types/pet";
@@ -331,14 +330,8 @@ function ApprovedPageContent() {
 				return;
 			}
 
-			const petsWithApplicationId = data.approvedPets.map(
-				(pet: Omit<ApprovedPet, "applicationId">) => ({
-					...pet,
-					applicationId: generateApplicationId(pet.userId, pet.petId),
-				})
-			);
-
-			setApprovedPets(petsWithApplicationId);
+			// データベースから取得した申請IDを使用
+			setApprovedPets(data.approvedPets);
 		} catch {
 			setApprovedPets([]);
 		} finally {

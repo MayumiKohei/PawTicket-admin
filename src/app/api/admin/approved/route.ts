@@ -16,6 +16,7 @@ export async function GET() {
 			createdAt: FirebaseFirestore.Timestamp | string | null;
 			approvedAt: FirebaseFirestore.Timestamp | string | null;
 			petData: Record<string, unknown>;
+			applicationId: string;
 		}> = [];
 
 		// 各ユーザーのpetsサブコレクションから status == "認証済み" のペットを取得
@@ -38,6 +39,7 @@ export async function GET() {
 						createdAt: petData.createdAt,
 						approvedAt: petData.approvedAt,
 						petData: petData,
+						applicationId: petData.applicationId || "不明",
 					});
 				});
 			} catch (error) {
