@@ -28,15 +28,15 @@ export async function GET() {
 					.where("status", "==", "申請中")
 					.get();
 
-				petsSnapshot.docs.forEach((petDoc) => {
+				for (const petDoc of petsSnapshot.docs) {
 					const petData = petDoc.data();
 
 					// 申請IDが存在しない場合は生成して保存
 					let applicationId = petData.applicationId;
 					if (!applicationId) {
-						applicationId = generateSequentialApplicationId();
+						applicationId = await generateSequentialApplicationId();
 						// データベースに申請IDを保存
-						petDoc.ref.update({ applicationId });
+						await petDoc.ref.update({ applicationId });
 					}
 
 					pendingPets.push({
@@ -47,7 +47,7 @@ export async function GET() {
 						petData: petData,
 						applicationId: applicationId,
 					});
-				});
+				}
 			} catch (error) {
 				console.warn(
 					`Failed to fetch pets for user ${userDoc.id}:`,
