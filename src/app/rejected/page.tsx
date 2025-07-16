@@ -1,14 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { signOut } from "firebase/auth";
-import { authB } from "../firebase";
 import { useAuth } from "../components/AuthProvider";
 import styles from "../index.module.scss";
 import localStyles from "./index.module.scss";
+import { Sidebar } from "../components/Sidebar";
 
 // ペット情報の型定義
 type TimestampType =
@@ -540,19 +537,9 @@ const PetDetailModal = ({
 
 // 却下済みページコンテンツコンポーネント
 function RejectedPageContent() {
-	const pathname = usePathname();
-	const [currentTime, setCurrentTime] = useState("");
 	const [rejectedPets, setRejectedPets] = useState<RejectedPet[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedPet, setSelectedPet] = useState<RejectedPet | null>(null);
-
-	const handleLogout = async () => {
-		try {
-			await signOut(authB);
-		} catch {
-			// Handle logout error silently
-		}
-	};
 
 	// 却下済みペットデータを取得
 	const fetchRejectedPets = async () => {
@@ -576,36 +563,10 @@ function RejectedPageContent() {
 		}
 	};
 
-	// 現在時刻を更新
-	useEffect(() => {
-		const updateClock = () => {
-			const now = new Date();
-			const timeStr = now.toLocaleTimeString("ja-JP", {
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-			});
-			setCurrentTime(timeStr);
-		};
-
-		updateClock();
-		const timer = setInterval(updateClock, 1000);
-		return () => clearInterval(timer);
-	}, []);
-
 	// コンポーネントマウント時にデータを取得
 	useEffect(() => {
 		fetchRejectedPets();
 	}, []);
-
-	// ナビゲーションアイテム
-	const navItems = [
-		{ name: "ダッシュボード", path: "/", icon: "dashboard" },
-		{ name: "承認待ち", path: "/pending", icon: "clock" },
-		{ name: "承認済み", path: "/approved", icon: "check-circle" },
-		{ name: "却下済み", path: "/rejected", icon: "x-circle" },
-		{ name: "プッシュ通知", path: "/notifications", icon: "bell" },
-	];
 
 	const handleRevertToPending = async (pet: RejectedPet) => {
 		try {
@@ -707,56 +668,7 @@ function RejectedPageContent() {
 
 	return (
 		<div className={styles.dashboard}>
-			{/* サイドバー */}
-			<aside className={styles.sidebar}>
-				<div className={styles.sidebar__header}>
-					<h1>PawTicket Admin</h1>
-					<p>管理パネル</p>
-				</div>
-
-				<nav className={styles.sidebar__nav}>
-					<ul>
-						{navItems.map((item) => (
-							<li key={item.path}>
-								<Link
-									href={item.path}
-									className={
-										pathname === item.path
-											? styles.active
-											: ""
-									}
-								>
-									<Icon name={item.icon} />
-									{item.name}
-								</Link>
-							</li>
-						))}
-					</ul>
-				</nav>
-
-				<div className={styles.sidebar__footer}>
-					<div>現在時刻: {currentTime}</div>
-					<button
-						onClick={handleLogout}
-						style={{
-							background: "none",
-							border: "none",
-							color: "#666",
-							cursor: "pointer",
-							fontSize: "0.9rem",
-							marginTop: "0.5rem",
-							display: "flex",
-							alignItems: "center",
-							gap: "0.5rem",
-						}}
-					>
-						<Icon name="logout" />
-						ログアウト
-					</button>
-				</div>
-			</aside>
-
-			{/* メインコンテンツ */}
+			<Sidebar />
 			<main className={styles.content}>
 				<div className={styles.content__header}>
 					<h2>却下済み</h2>

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebaseAdmin";
+import { ptAdminDb } from "../../../../lib/firebaseAdmin";
 
 export const runtime = "nodejs";
 
 // GET: 一覧取得
 export async function GET() {
 	try {
-		const snapshot = await adminDb
+		const snapshot = await ptAdminDb
 			.collection("announcements")
 			.orderBy("date", "desc")
 			.get();
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 				{ status: 400 }
 			);
 		}
-		const docRef = await adminDb.collection("announcements").add({
+		const docRef = await ptAdminDb.collection("announcements").add({
 			title,
 			date,
 			photoUrl: photoUrl || null,
@@ -60,7 +60,7 @@ export async function PUT(req: NextRequest) {
 				{ status: 400 }
 			);
 		}
-		await adminDb
+		await ptAdminDb
 			.collection("announcements")
 			.doc(id)
 			.update({
@@ -89,7 +89,7 @@ export async function DELETE(req: NextRequest) {
 				{ status: 400 }
 			);
 		}
-		await adminDb.collection("announcements").doc(id).delete();
+		await ptAdminDb.collection("announcements").doc(id).delete();
 		return NextResponse.json({ success: true });
 	} catch (error) {
 		return NextResponse.json(
