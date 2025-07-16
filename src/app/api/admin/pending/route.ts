@@ -15,6 +15,7 @@ export async function GET() {
 			petName: string;
 			createdAt: FirebaseFirestore.Timestamp | string | null;
 			petData: Record<string, unknown>;
+			applicationId: string;
 		}> = [];
 
 		// 各ユーザーのpetsサブコレクションから status == "申請中" のペットを取得
@@ -30,12 +31,21 @@ export async function GET() {
 				petsSnapshot.docs.forEach((petDoc) => {
 					const petData = petDoc.data();
 
+					// 申請IDが存在しない場合は生成して保存
+					let applicationId = petData.applicationId;
+					if (!applicationId) {
+						applicationId = generateSequentialApplicationId();
+						// データベースに申請IDを保存
+						petDoc.ref.update({ applicationId });
+					}
+
 					pendingPets.push({
 						userId: userDoc.id,
 						petId: petDoc.id,
 						petName: petData.petName ?? "名前なし",
 						createdAt: petData.createdAt,
 						petData: petData,
+						applicationId: applicationId,
 					});
 				});
 			} catch (error) {
@@ -96,5 +106,39 @@ export async function GET() {
 			},
 			{ status: 500 }
 		);
+	}
+}
+
+// 順次的な申請IDを生成する関数
+async function generateSequentialApplicationId(): Promise<string> {
+	try {
+		const response = await fetch(
+			`${
+				process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+			}/api/admin/application-counter`,
+			{
+				method: "POST",
+			}
+		);
+
+		if (!response.ok) {
+			throw new Error("Failed to generate application ID");
+		}
+
+		const data = await response.json();
+
+		if (!data.success) {
+			throw new Error(
+				data.message || "Failed to generate application ID"
+			);
+		}
+
+		return data.applicationId;
+	} catch (error) {
+		console.error("Error generating sequential application ID:", error);
+		// フォールバック: タイムスタンプベースのIDを生成
+		const timestamp = Date.now();
+		const random = Math.floor(Math.random() * 1000);
+		return `P${timestamp}${random.toString().padStart(3, "0")}`;
 	}
 }
