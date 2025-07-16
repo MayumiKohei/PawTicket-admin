@@ -41,7 +41,7 @@ jobs:
 
             - name: Install Functions dependencies
               working-directory: functions
-              run: cd functions && yarn install --frozen-lockfile
+              run: yarn install --frozen-lockfile
 
             - name: Deploy Functions
               env:
