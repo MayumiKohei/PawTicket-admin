@@ -9,7 +9,6 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import { Request, Response } from "express";
 
 // 型エラー対策: @types/express, @types/firebase-functions, @types/firebase-admin など型定義パッケージのインストールが必要です
 // npm install --save-dev @types/express @types/firebase-functions @types/firebase-admin
