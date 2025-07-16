@@ -7,8 +7,9 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const next = require("next");
 
 // 型エラー対策: @types/express, @types/firebase-functions, @types/firebase-admin など型定義パッケージのインストールが必要です
 // npm install --save-dev @types/express @types/firebase-functions @types/firebase-admin
@@ -20,7 +21,7 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 // お知らせCRUD
-export const announcements = functions.https.onRequest(async (req, res) => {
+exports.announcements = functions.https.onRequest(async (req, res) => {
 	try {
 		if (req.method === "GET") {
 			// 一覧取得
@@ -94,4 +95,13 @@ export const announcements = functions.https.onRequest(async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ success: false, message: String(error) });
 	}
+});
+
+// Next.js SSR/API用Cloud Function
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev, conf: { distDir: ".next" } });
+const handle = app.getRequestHandler();
+
+exports.nextjsFunc = functions.https.onRequest((req, res) => {
+	return app.prepare().then(() => handle(req, res));
 });
