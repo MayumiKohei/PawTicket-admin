@@ -26,9 +26,21 @@ jobs:
             # ────────────────────────────────────────────
             - run: yarn install --frozen-lockfile && yarn build
 
+            # Hosting のみデプロイ
             - uses: FirebaseExtended/action-hosting-deploy@v0
               with:
                   repoToken: ${{ secrets.GITHUB_TOKEN }}
                   firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
                   channelId: live
                   projectId: pt-admin-4d877
+
+            # ────────────────────────────────────────────
+            # 追加：Firebase Functions をデプロイ
+            - name: Deploy Firebase Functions
+              env:
+                  # 先ほど書き出したサービスアカウントを指す
+                  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-admin/pt-admin-firebase.json
+              run: |
+                  # Firebase CLI がなければ npx でその場で
+                  npx firebase deploy --only functions --project pt-admin-4d877
+            # ────────────────────────────────────────────
