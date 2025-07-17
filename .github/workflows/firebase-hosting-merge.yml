@@ -52,5 +52,5 @@ jobs:
 
             - name: Deploy Functions
               working-directory: functions
-              run: npx firebase deploy --only functions --project pt-admin-4d877
+              run: npx firebase deploy --only functions --project pt-admin-4d877 --gen1
             # ────────────────────────────────────────────
