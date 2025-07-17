@@ -48,7 +48,7 @@ jobs:
             - name: Authenticate to Google Cloud
               uses: google-github-actions/auth@v2
               with:
-                  credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
+                  credentials_json: ${{ secrets.GOOGLE_CLOUD_SERVICE_ACCOUNT_KEY }}
 
             - name: Deploy Functions
               working-directory: functions
