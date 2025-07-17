@@ -1,6 +1,7 @@
 {
   "functions": {
-    "runtime": "nodejs18"
+    "runtime": "nodejs18",
+    "platform": "gcfv1"
   },
   "hosting": {
     "public": "public",
