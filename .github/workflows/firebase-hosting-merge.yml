@@ -51,9 +51,6 @@ jobs:
                   credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
 
             - name: Deploy Functions
-              env:
-                  # サービスアカウント JSON を指して CLI 認証させる
-                  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/firebase-admin/pt-admin-firebase.json
-              run: |
-                  npx firebase deploy --only functions --project pt-admin-4d877
+              working-directory: functions
+              run: npx firebase deploy --only functions --project pt-admin-4d877
             # ────────────────────────────────────────────
