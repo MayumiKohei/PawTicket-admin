@@ -1,7 +1,6 @@
 {
   "functions": {
-    "runtime": "nodejs18",
-    "platform": "gcfv1"
+    "runtime": "nodejs20"
   },
   "hosting": {
     "public": "public",
@@ -13,7 +12,10 @@
     "rewrites": [
       {
         "source": "**",
-        "function": "nextjsFunc"
+        "run": {
+          "serviceId": "nextjsFunc",
+          "region": "us-central1"
+        }
       }
     ]
   }
