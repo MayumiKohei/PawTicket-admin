@@ -34,6 +34,14 @@ jobs:
               with:
                   credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
 
+            # ← ここを追加
+            - name: Write Functions Service Account
+              env:
+                  FUNCTIONS_SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
+              run: |
+                  echo "$FUNCTIONS_SA_JSON" > functions/sa.json
+                  chmod 600 functions/sa.json
+
             - name: Install Functions dependencies
               working-directory: functions
               run: yarn install --frozen-lockfile
