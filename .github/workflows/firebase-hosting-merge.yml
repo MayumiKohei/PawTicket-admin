@@ -40,6 +40,8 @@ jobs:
 
             - name: Deploy Functions (Gen2)
               working-directory: functions
+              env:
+                  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/sa.json
               run: npx firebase deploy --only functions --project pt-admin-4d877
             # ────────────────────────────────────────────
 
