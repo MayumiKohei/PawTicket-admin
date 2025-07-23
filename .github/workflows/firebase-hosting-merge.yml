@@ -34,6 +34,10 @@ jobs:
               with:
                   credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
 
+            - name: Install Functions dependencies
+              working-directory: functions
+              run: yarn install --frozen-lockfile
+
             - name: Deploy Functions (Gen2)
               working-directory: functions
               run: npx firebase deploy --only functions --project pt-admin-4d877
