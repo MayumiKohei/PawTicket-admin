@@ -27,7 +27,7 @@
       {
         "source": "**",
         "run": {
-          "serviceId": "app",
+          "serviceId": "nextjsFunc",
           "region": "us-central1"
         }
       }
