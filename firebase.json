@@ -1,20 +1,8 @@
 {
-  "functions": [
-    {
-      "source": "functions",
-      "platform": "gcfv2",
-      "runtime": "nodejs20",
-      "region": "us-central1",
-      "dockerRegistry": "ARTIFACT_REGISTRY",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ]
-    }
-  ],
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
+  },
 
   "hosting": {
     "public": "public",
@@ -27,7 +15,7 @@
       {
         "source": "**",
         "run": {
-          "serviceId": "nextjsFunc",
+          "serviceId": "nextjsfunc",
           "region": "us-central1"
         }
       }
