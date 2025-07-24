@@ -1,5 +1,4 @@
 const express = require('express');
-const functionsFramework = require('@google-cloud/functions-framework');
 const admin = require('firebase-admin');
 const next = require('next');
 
@@ -88,5 +87,6 @@ app.all('/*', async (req, res) => {
   return handle(req, res);
 });
 
-// Functions Framework に登録
-functionsFramework.http('app', app);
+// Firebase Functionsとしてエクスポート
+const functions = require('firebase-functions');
+exports.nextjsfunc = functions.region('us-central1').https.onRequest(app);
