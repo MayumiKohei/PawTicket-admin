@@ -5,6 +5,7 @@
     "runtime": "nodejs20",
     "region": "us-central1",
     "dockerRegistry": "ARTIFACT_REGISTRY",
+    "memory": "512MiB",
     "ignore": [
       "node_modules",
       ".git",
