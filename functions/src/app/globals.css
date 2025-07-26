@@ -1,0 +1,53 @@
+/* アプリケーション全体に適用されるグローバルスタイル */
+
+:root {
+	/* カスタム変数の定義 */
+	--primary-color: #007bff;
+	--secondary-color: #6c757d;
+	--success-color: #28a745;
+	--danger-color: #dc3545;
+	--warning-color: #ffc107;
+	--info-color: #17a2b8;
+	--light-color: #f8f9fa;
+	--dark-color: #343a40;
+}
+
+/* フォント設定のデフォルト */
+body {
+	font-family: var(--font-geist-sans), sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: var(--dark-color);
+	background-color: var(--light-color);
+}
+
+/* コード用フォント */
+code,
+pre,
+kbd,
+samp {
+	font-family: var(--font-geist-mono), monospace;
+}
+
+/* リンクスタイル */
+a {
+	color: var(--primary-color);
+	text-decoration: none;
+	transition: color 0.3s ease;
+}
+
+a:hover {
+	color: #0056b3;
+	text-decoration: underline;
+}
+
+/* ボタンのリセット */
+button {
+	cursor: pointer;
+	border: none;
+	background: none;
+	padding: 0;
+	margin: 0;
+}
+
+/* 追加のカスタムスタイルはここに記述 */

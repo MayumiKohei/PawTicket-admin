@@ -4,7 +4,9 @@ const next = require('next');
 
 // Firebase Admin 初期化
 if (!admin.apps.length) {
-  admin.initializeApp();
+  admin.initializeApp({
+    credential: admin.credential.cert(require('./firebase-admin/pt-admin-firebase.json'))
+  });
 }
 const db = admin.firestore();
 
@@ -82,11 +84,24 @@ app.delete('/announcements', async (req, res) => {
 const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev, conf: { distDir: '.next' } });
 const handle = nextApp.getRequestHandler();
+
 app.all('/*', async (req, res) => {
-  await nextApp.prepare();
-  return handle(req, res);
+  try {
+    await nextApp.prepare();
+    return handle(req, res);
+  } catch (error) {
+    console.error('Next.js SSR Error:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      message: error.message,
+      stack: error.stack 
+    });
+  }
 });
 
 // Firebase Functionsとしてエクスポート
-const functions = require('firebase-functions');
-exports.nextjsfunc = functions.region('us-central1').https.onRequest(app);
+const functions = require('firebase-functions/v2');
+exports.nextjsfunc = functions.https.onRequest({
+  memory: '512MiB',
+  timeoutSeconds: 60
+}, app);

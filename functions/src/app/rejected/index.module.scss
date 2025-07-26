@@ -1,0 +1,366 @@
+// ペットリストスタイル
+.petList {
+	width: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid #eaeaea;
+
+	&__header {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		background-color: #f3f4f6;
+		font-weight: 600;
+		color: #4b5563;
+		padding: 0.75rem;
+		border-bottom: 1px solid #eaeaea;
+	}
+
+	&__row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		padding: 0.75rem;
+		border-bottom: 1px solid #eaeaea;
+		transition: background-color 0.2s;
+		cursor: pointer;
+		background: none;
+		border: none;
+		text-align: left;
+		width: 100%;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		&:hover {
+			background-color: #fef2f2;
+		}
+	}
+
+	&__cell {
+		display: flex;
+		align-items: center;
+		font-size: 0.9rem;
+		color: #4b5563;
+	}
+}
+
+// モーダルスタイル
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+}
+
+.modalContent {
+	background: white;
+	border-radius: 8px;
+	padding: 0;
+	max-width: 800px;
+	max-height: 90vh;
+	width: 90%;
+	overflow-y: auto;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalHeader {
+	padding: 1.5rem;
+	border-bottom: 1px solid #e5e7eb;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #fef2f2;
+
+	h3 {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #dc2626;
+	}
+}
+
+.modalBody {
+	padding: 1.5rem;
+}
+
+.closeButton {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #6b7280;
+	padding: 0.25rem;
+	border-radius: 0.25rem;
+	transition: color 0.2s;
+
+	&:hover {
+		color: #374151;
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+}
+
+// セクションスタイル
+.section {
+	margin-bottom: 2rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.sectionTitle {
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 1rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 2px solid #dc2626;
+}
+
+.detailGrid {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.detailRow {
+	display: grid;
+	grid-template-columns: 120px 1fr;
+	gap: 1rem;
+	align-items: center;
+}
+
+.detailLabel {
+	font-weight: 500;
+	color: #6b7280;
+	font-size: 0.9rem;
+}
+
+.detailValue {
+	color: #374151;
+	font-size: 0.9rem;
+}
+
+// ワクチンセクション
+.vaccineSection {
+	background-color: #f9fafb;
+	padding: 1rem;
+	border-radius: 6px;
+	margin-bottom: 1rem;
+	border: 1px solid #e5e7eb;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.vaccineTitle {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #dc2626;
+	margin-bottom: 0.75rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&::before {
+		content: "💉";
+		font-size: 1.2rem;
+	}
+}
+
+// 写真コンテナ
+.photoContainer {
+	display: flex;
+	align-items: center;
+}
+
+.vaccineThumbnail {
+	border-radius: 4px;
+	cursor: pointer;
+	transition: transform 0.2s;
+	border: 2px solid #e5e7eb;
+	background: none;
+	padding: 0;
+
+	&:hover {
+		transform: scale(1.05);
+		border-color: #dc2626;
+	}
+
+	img {
+		border-radius: 4px;
+		display: block;
+	}
+}
+
+// 写真モーダル
+.photoModalContent {
+	background: white;
+	border-radius: 8px;
+	padding: 0;
+	max-width: 90vw;
+	max-height: 90vh;
+	overflow: hidden;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.photoModalHeader {
+	padding: 1rem;
+	border-bottom: 1px solid #e5e7eb;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	h3 {
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: #374151;
+	}
+}
+
+.photoModalBody {
+	padding: 1rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-height: 80vh;
+	overflow: auto;
+}
+
+// モーダルフッター
+.modalFooter {
+	padding: 1rem 1.5rem;
+	border-top: 1px solid #e5e7eb;
+	background-color: #f9fafb;
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+}
+
+// ボタンスタイル
+.revertButton {
+	background-color: #059669;
+	color: white;
+	border: none;
+	border-radius: 0.375rem;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&:hover {
+		background-color: #047857;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+}
+
+.closeModalButton {
+	background-color: #6b7280;
+	color: white;
+	border: none;
+	border-radius: 0.375rem;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background-color: #4b5563;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+}
+
+// レスポンシブデザイン
+@media (max-width: 768px) {
+	.modalContent {
+		width: 95%;
+		max-height: 95vh;
+	}
+
+	.modalHeader {
+		padding: 1rem;
+	}
+
+	.modalBody {
+		padding: 1rem;
+	}
+
+	.modalFooter {
+		padding: 1rem;
+		flex-direction: column;
+		gap: 0.5rem;
+
+		button {
+			width: 100%;
+			justify-content: center;
+		}
+	}
+
+	.detailRow {
+		grid-template-columns: 1fr;
+		gap: 0.25rem;
+	}
+
+	.detailLabel {
+		font-weight: 600;
+	}
+
+	.petList {
+		&__header,
+		&__row {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
+
+		&__cell {
+			justify-content: flex-start;
+			font-size: 0.85rem;
+		}
+
+		&__header {
+			.petList__cell {
+				font-weight: 700;
+				color: #374151;
+			}
+		}
+	}
+}
+
+@media (max-width: 640px) {
+	.photoModalContent {
+		width: 95vw;
+		max-height: 95vh;
+	}
+
+	.photoModalBody {
+		padding: 0.5rem;
+	}
+}
