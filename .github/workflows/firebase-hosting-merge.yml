@@ -52,11 +52,14 @@ jobs:
             - name: Deploy Functions (Gen2)
               working-directory: functions
               env:
-                  GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/functions/sa.json
                   FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-              run: npx firebase deploy --only functions --project pt-admin-4d877
+              run: |
+                  yarn install --frozen-lockfile
+                  npx firebase deploy \
+                  --only functions \
+                  --project pt-admin-4d877 \
+                  --token "$FIREBASE_TOKEN"
             # ────────────────────────────────────────────
-
             # ────────────────────────────────────────────
             # Hosting をデプロイ（Functionsの後に移動！）
             - name: Deploy Hosting
