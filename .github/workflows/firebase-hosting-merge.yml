@@ -62,11 +62,19 @@ jobs:
             # ────────────────────────────────────────────
             # ────────────────────────────────────────────
             # Hosting をデプロイ（Functionsの後に移動！）
+            # - name: Deploy Hosting
+            #   uses: FirebaseExtended/action-hosting-deploy@v0
+            #   with:
+            #       repoToken: ${{ secrets.GITHUB_TOKEN }}
+            #       firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
+            #       projectId: pt-admin-4d877
+            #       channelId: live
             - name: Deploy Hosting
-              uses: FirebaseExtended/action-hosting-deploy@v0
-              with:
-                  repoToken: ${{ secrets.GITHUB_TOKEN }}
-                  firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
-                  projectId: pt-admin-4d877
-                  channelId: live
-            # ────────────────────────────────────────────
+              env:
+                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+              run: |
+                  npx firebase deploy \
+                  --only hosting \
+                  --project pt-admin-4d877 \
+                  --token "$FIREBASE_TOKEN"
+              # ────────────────────────────────────────────
