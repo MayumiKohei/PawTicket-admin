@@ -10,12 +10,26 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
+// Next.js アプリを最初に初期化
+const dev = process.env.NODE_ENV !== 'production';
+const nextApp = next({ dev, conf: { distDir: '.next' } });
+const handle = nextApp.getRequestHandler();
+
+// Next.jsアプリを事前に準備
+let isNextAppReady = false;
+const prepareNextApp = async () => {
+  if (!isNextAppReady) {
+    await nextApp.prepare();
+    isNextAppReady = true;
+  }
+};
+
 // Express アプリ作成
 const app = express();
 app.use(express.json());
 
-// お知らせ CRUD
-app.get('/announcements', async (req, res) => {
+// お知らせ CRUD エンドポイント
+app.get('/api/announcements', async (req, res) => {
   try {
     const snapshot = await db
       .collection('announcements')
@@ -24,11 +38,12 @@ app.get('/announcements', async (req, res) => {
     const announcements = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     res.json({ success: true, announcements });
   } catch (error) {
+    console.error('Get announcements error:', error);
     res.status(500).json({ success: false, message: String(error) });
   }
 });
 
-app.post('/announcements', async (req, res) => {
+app.post('/api/announcements', async (req, res) => {
   try {
     const { title, date, photoUrl, body } = req.body;
     if (!title || !date || !body) {
@@ -44,11 +59,12 @@ app.post('/announcements', async (req, res) => {
     });
     res.json({ success: true, id: docRef.id });
   } catch (error) {
+    console.error('Create announcement error:', error);
     res.status(500).json({ success: false, message: String(error) });
   }
 });
 
-app.put('/announcements', async (req, res) => {
+app.put('/api/announcements', async (req, res) => {
   try {
     const { id, title, date, photoUrl, body } = req.body;
     if (!id || !title || !date || !body) {
@@ -63,11 +79,12 @@ app.put('/announcements', async (req, res) => {
     });
     res.json({ success: true });
   } catch (error) {
+    console.error('Update announcement error:', error);
     res.status(500).json({ success: false, message: String(error) });
   }
 });
 
-app.delete('/announcements', async (req, res) => {
+app.delete('/api/announcements', async (req, res) => {
   try {
     const { id } = req.body;
     if (!id) {
@@ -76,25 +93,22 @@ app.delete('/announcements', async (req, res) => {
     await db.collection('announcements').doc(id).delete();
     res.json({ success: true });
   } catch (error) {
+    console.error('Delete announcement error:', error);
     res.status(500).json({ success: false, message: String(error) });
   }
 });
 
-// Next.js SSR 用ハンドラ
-const dev = process.env.NODE_ENV !== 'production';
-const nextApp = next({ dev, conf: { distDir: '.next' } });
-const handle = nextApp.getRequestHandler();
-
-app.all('/*', async (req, res) => {
+// Next.js SSR 用ハンドラ（すべてのその他のルートをキャッチ）
+app.all('*', async (req, res) => {
   try {
-    await nextApp.prepare();
+    await prepareNextApp();
     return handle(req, res);
   } catch (error) {
     console.error('Next.js SSR Error:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error', 
+    res.status(500).json({
+      error: 'Internal Server Error',
       message: error.message,
-      stack: error.stack 
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
@@ -103,5 +117,6 @@ app.all('/*', async (req, res) => {
 const functions = require('firebase-functions/v2');
 exports.nextjsfunc = functions.https.onRequest({
   memory: '512MiB',
-  timeoutSeconds: 60
+  timeoutSeconds: 60,
+  region: 'us-central1'  // firebase.jsonと一致させる
 }, app);
