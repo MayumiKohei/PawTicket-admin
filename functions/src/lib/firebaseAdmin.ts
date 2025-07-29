@@ -48,6 +48,12 @@ const pawticketApp =
 		"pawticket-app"
 	);
 
+// デバッグ情報を出力
+console.log("Firebase Admin SDK 初期化完了:", {
+	ptAdminProjectId: ptAdminApp.options.projectId,
+	pawticketProjectId: pawticketApp.options.projectId,
+});
+
 // エクスポート
 export const ptAdminAuth = ptAdminApp.auth();
 export const ptAdminDb = ptAdminApp.firestore();
