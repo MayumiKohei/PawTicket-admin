@@ -4,17 +4,11 @@ const next = require('next');
 
 // Firebase Admin 初期化
 if (!admin.apps.length) {
-  const firebaseConfig = {
-    apiKey: "AIzaSyAjmdbaSlO2PJtnThYOI9mrpsoBgq6JWDc",
-    authDomain: "pt-admin-4d877.firebaseapp.com",
+  // 本番環境では自動的にサービスアカウントが使用される
+  admin.initializeApp({
     projectId: "pt-admin-4d877",
     storageBucket: "pt-admin-4d877.firebasestorage.app",
-    messagingSenderId: "420928013456",
-    appId: "1:420928013456:web:42cde435f10b1949c30415",
-    measurementId: "G-9GWH9VTJP6"
-  };
-
-  admin.initializeApp(firebaseConfig);
+  });
 }
 const db = admin.firestore();
 
