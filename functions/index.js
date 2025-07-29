@@ -6,11 +6,35 @@ const next = require('next');
 if (!admin.apps.length) {
   // 本番環境では自動的にサービスアカウントが使用される
   admin.initializeApp({
-    projectId: "pt-admin-4d877",
-    storageBucket: "pt-admin-4d877.firebasestorage.app",
+    projectId: "pawticket-6b651",
+    storageBucket: "pawticket-6b651.firebasestorage.app",
   });
 }
 const db = admin.firestore();
+
+// pawticket-app プロジェクト用の Admin SDK 初期化
+let pawticketApp;
+try {
+  pawticketApp = admin.app('pawticket-app');
+} catch (error) {
+  // 環境変数またはサービスアカウントキーを使用して初期化
+  let credential;
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    // 環境変数が設定されている場合はそれを使用
+    credential = admin.credential.applicationDefault();
+  } else {
+    // ローカル開発用のサービスアカウントキーを使用
+    const serviceAccount = require('./sa.json');
+    credential = admin.credential.cert(serviceAccount);
+  }
+  
+  pawticketApp = admin.initializeApp({
+    credential,
+    projectId: "pawticket-6b651",
+    storageBucket: "pawticket-6b651.firebasestorage.app",
+  }, 'pawticket-app');
+}
+const pawticketDb = pawticketApp.firestore();
 
 // Next.js アプリを最初に初期化
 const dev = process.env.NODE_ENV !== 'production';
