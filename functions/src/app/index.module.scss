@@ -1,0 +1,229 @@
+// ダッシュボード用のスタイルモジュール
+.dashboard {
+	display: flex;
+	min-height: 100vh;
+	background-color: #f5f7fa;
+}
+
+// サイドバー
+.sidebar {
+	width: 260px;
+	background: linear-gradient(180deg, #2c3e50 0%, #1a2a3a 100%);
+	color: white;
+	padding: 1.5rem 0;
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+	display: flex;
+	flex-direction: column;
+	position: fixed;
+	height: 100vh;
+	z-index: 10;
+
+	&__header {
+		padding: 0 1.5rem 1.5rem;
+		margin-bottom: 1.5rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+		h1 {
+			font-size: 1.5rem;
+			font-weight: 700;
+			margin: 0;
+		}
+
+		p {
+			margin: 0.5rem 0 0;
+			font-size: 0.85rem;
+			opacity: 0.7;
+		}
+	}
+
+	&__nav {
+		flex: 1;
+
+		ul {
+			list-style-type: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		li {
+			margin-bottom: 0.5rem;
+
+			a {
+				display: flex;
+				align-items: center;
+				padding: 0.75rem 1.5rem;
+				color: rgba(255, 255, 255, 0.8);
+				text-decoration: none;
+				transition: all 0.2s;
+				border-left: 3px solid transparent;
+
+				svg {
+					margin-right: 0.75rem;
+					font-size: 1.1rem;
+				}
+
+				&:hover {
+					background-color: rgba(255, 255, 255, 0.05);
+					color: white;
+				}
+
+				&.active {
+					color: white;
+					background-color: rgba(255, 255, 255, 0.1);
+					border-left-color: #0070f3;
+				}
+			}
+		}
+	}
+
+	&__footer {
+		padding: 1.5rem;
+		font-size: 0.8rem;
+		opacity: 0.6;
+		text-align: center;
+		border-top: 1px solid rgba(255, 255, 255, 0.1);
+	}
+}
+
+// メインコンテンツエリア
+.content {
+	flex: 1;
+	margin-left: 260px;
+	padding: 2rem;
+
+	&__header {
+		margin-bottom: 2rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		h2 {
+			font-size: 1.8rem;
+			font-weight: 700;
+			color: #333;
+			margin: 0;
+		}
+	}
+
+	&__card {
+		background-color: white;
+		border-radius: 10px;
+		padding: 1.5rem;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+		margin-bottom: 1.5rem;
+
+		h3 {
+			font-size: 1.2rem;
+			margin-top: 0;
+			margin-bottom: 1rem;
+			color: #444;
+		}
+
+		&__stats {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 1.5rem;
+			margin-top: 1rem;
+		}
+	}
+}
+
+// 認証関連のスタイル
+.authLoading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	font-size: 1.2rem;
+}
+
+.authError {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	font-size: 1.2rem;
+}
+
+.stat-card {
+	background-color: #f8f9fb;
+	border-radius: 8px;
+	padding: 1.2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+
+	h4 {
+		margin: 0.5rem 0;
+		color: #666;
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
+
+	.value {
+		font-size: 2rem;
+		font-weight: 700;
+		color: #333;
+	}
+
+	.icon {
+		background-color: rgba(0, 112, 243, 0.1);
+		color: #0070f3;
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.5rem;
+	}
+}
+
+// アクティブなリンクスタイル
+.active {
+	color: white !important;
+	background-color: rgba(255, 255, 255, 0.1) !important;
+	border-left-color: #0070f3 !important;
+}
+
+// レスポンシブ対応
+@media (max-width: 768px) {
+	.dashboard {
+		flex-direction: column;
+	}
+
+	.sidebar {
+		width: 100%;
+		height: auto;
+		position: relative;
+		padding: 1rem 0;
+	}
+
+	.content {
+		margin-left: 0;
+		padding: 1.5rem;
+	}
+
+	.sidebar__nav ul {
+		display: flex;
+		overflow-x: auto;
+		padding-bottom: 0.5rem;
+
+		li {
+			margin-right: 0.5rem;
+			margin-bottom: 0;
+
+			a {
+				padding: 0.5rem 1rem;
+				border-left: none;
+				border-bottom: 3px solid transparent;
+
+				&.active {
+					border-left-color: transparent;
+					border-bottom-color: #0070f3;
+				}
+			}
+		}
+	}
+}
