@@ -15,17 +15,6 @@ const ptAdminRaw = readFileSync(ptAdminServiceAccountPath, {
 });
 const ptAdminServiceAccount = JSON.parse(ptAdminRaw);
 
-// アプリ用
-const pawticketAppServiceAccountPath = join(
-	process.cwd(),
-	"firebase-admin",
-	"pawticket-app-firebase.json"
-);
-const pawticketAppRaw = readFileSync(pawticketAppServiceAccountPath, {
-	encoding: "utf-8",
-});
-const pawticketAppServiceAccount = JSON.parse(pawticketAppRaw);
-
 function getAppByName(name: string): admin.app.App | undefined {
 	return admin.apps.find((app) => app?.name === name) || undefined;
 }
@@ -53,14 +42,7 @@ const pawticketApp =
 	getAppByName("pawticket-app") ??
 	admin.initializeApp(
 		{
-			credential: admin.credential.cert({
-				projectId: pawticketAppServiceAccount.project_id,
-				clientEmail: pawticketAppServiceAccount.client_email,
-				privateKey: pawticketAppServiceAccount.private_key.replace(
-					/\\n/g,
-					"\n"
-				),
-			}),
+			projectId: "pawticket-6b651",
 			storageBucket: "pawticket-6b651.firebasestorage.app",
 		},
 		"pawticket-app"
