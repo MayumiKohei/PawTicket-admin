@@ -30,10 +30,17 @@ const firebaseConfigA = {
 /** ─── Firebase アプリを初期化 ─────────────────────────────────────────────── */
 // Next.js のホットリロード時に二重初期化を避けるため、まず既存アプリの有無をチェックする。
 let appB: FirebaseApp;
-if (getApps().length === 0) {
-	appB = initializeApp(firebaseConfigB);
+
+// クライアントサイドでのみ初期化
+if (typeof window !== "undefined") {
+	if (getApps().length === 0) {
+		appB = initializeApp(firebaseConfigB);
+	} else {
+		appB = getApp();
+	}
 } else {
-	appB = getApp();
+	// サーバーサイドではダミーアプリ
+	appB = {} as FirebaseApp;
 }
 
 // 「アプリ A」は別名をつけて初期化。すでに同名のアプリがあれば再取得
@@ -47,10 +54,12 @@ try {
 
 /** ─── 各プロジェクトごとにサービスを取得 ─────────────────────────────────── */
 // プロジェクト B 用
-export const authB = getAuth(appB);
-export const firestoreB = getFirestore(appB);
-export const storageB = getStorage(appB);
+export const authB = typeof window !== "undefined" ? getAuth(appB) : null;
+export const firestoreB =
+	typeof window !== "undefined" ? getFirestore(appB) : null;
+export const storageB = typeof window !== "undefined" ? getStorage(appB) : null;
 
 // プロジェクト A 用
-export const firestoreA = getFirestore(appA);
-export const storageA = getStorage(appA);
+export const firestoreA =
+	typeof window !== "undefined" ? getFirestore(appA) : null;
+export const storageA = typeof window !== "undefined" ? getStorage(appA) : null;
