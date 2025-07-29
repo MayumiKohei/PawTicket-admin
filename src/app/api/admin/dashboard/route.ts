@@ -7,6 +7,9 @@ export const runtime = "nodejs";
 
 export async function GET() {
 	try {
+		// デバッグ情報を追加
+		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
+
 		// ── (A) totalUsers: /users コレクションのドキュメント数を取得 ────────────
 		const usersSnapshot = await pawticketDb.collection("users").get();
 		const totalUsers = usersSnapshot.size;
