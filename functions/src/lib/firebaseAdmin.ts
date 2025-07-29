@@ -42,6 +42,7 @@ const pawticketApp =
 	getAppByName("pawticket-app") ??
 	admin.initializeApp(
 		{
+			credential: admin.credential.cert(require("../../sa.json")),
 			projectId: "pawticket-6b651",
 			storageBucket: "pawticket-6b651.firebasestorage.app",
 		},
