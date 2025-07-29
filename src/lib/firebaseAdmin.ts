@@ -53,18 +53,17 @@ const pawticketApp =
 	getAppByName("pawticket-app") ??
 	admin.initializeApp(
 		{
-			credential: admin.credential.cert({
-				projectId: pawticketAppServiceAccount.project_id,
-				clientEmail: pawticketAppServiceAccount.client_email,
-				privateKey: pawticketAppServiceAccount.private_key.replace(
-					/\\n/g,
-					"\n"
-				),
-			}),
+			projectId: "pawticket-6b651",
 			storageBucket: "pawticket-6b651.firebasestorage.app",
 		},
 		"pawticket-app"
 	);
+
+// デバッグ情報を出力
+console.log("Firebase Admin SDK 初期化完了:", {
+	ptAdminProjectId: ptAdminApp.options.projectId,
+	pawticketProjectId: pawticketApp.options.projectId,
+});
 
 // エクスポート
 export const ptAdminAuth = ptAdminApp.auth();
