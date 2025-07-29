@@ -2,7 +2,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import * as admin from "firebase-admin";
-import "firebase/storage";
+// import "firebase/storage";
 
 // 管理用
 const ptAdminServiceAccountPath = join(
@@ -39,7 +39,7 @@ const ptAdminApp =
 				projectId: ptAdminServiceAccount.project_id,
 				clientEmail: ptAdminServiceAccount.client_email,
 				privateKey: ptAdminServiceAccount.private_key.replace(
-					/\n/g,
+					/\\n/g,
 					"\n"
 				),
 			}),
@@ -57,7 +57,7 @@ const pawticketApp =
 				projectId: pawticketAppServiceAccount.project_id,
 				clientEmail: pawticketAppServiceAccount.client_email,
 				privateKey: pawticketAppServiceAccount.private_key.replace(
-					/\n/g,
+					/\\n/g,
 					"\n"
 				),
 			}),
