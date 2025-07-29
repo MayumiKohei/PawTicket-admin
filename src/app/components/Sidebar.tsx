@@ -48,7 +48,9 @@ function Sidebar() {
 
 	const handleLogout = async () => {
 		try {
-			await signOut(authB);
+			if (authB) {
+				await signOut(authB);
+			}
 			await fetch("/api/auth/logout", { method: "POST" });
 			router.push("/auth/login");
 		} catch (error) {
