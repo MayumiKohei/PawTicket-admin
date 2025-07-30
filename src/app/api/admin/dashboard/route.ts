@@ -1,14 +1,17 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from "next/server";
-import { adminDb } from "../../../../lib/firebaseAdmin";
+import { pawticketDb } from "../../../../lib/firebaseAdmin";
 
 // Node.js ランタイムで実行する (Edge ランタイムでは firebase-admin が動かないため必須)
 export const runtime = "nodejs";
 
 export async function GET() {
 	try {
+		// デバッグ情報を追加
+		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
+
 		// ── (A) totalUsers: /users コレクションのドキュメント数を取得 ────────────
-		const usersSnapshot = await adminDb.collection("users").get();
+		const usersSnapshot = await pawticketDb.collection("users").get();
 		const totalUsers = usersSnapshot.size;
 
 		// ── (B & C) 一時的な回避策: 各ユーザーのpetsを個別に取得して集計 ────────────
@@ -18,7 +21,7 @@ export async function GET() {
 		// 全ユーザーのpetsサブコレクションを順次取得
 		for (const userDoc of usersSnapshot.docs) {
 			try {
-				const petsSnapshot = await adminDb
+				const petsSnapshot = await pawticketDb
 					.collection("users")
 					.doc(userDoc.id)
 					.collection("pets")

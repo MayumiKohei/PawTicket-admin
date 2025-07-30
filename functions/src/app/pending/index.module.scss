@@ -1,0 +1,267 @@
+// 承認待ちページ用のスタイル
+
+// モーダルスタイル
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.modalContent {
+	background: white;
+	border-radius: 0.5rem;
+	width: 90%;
+	max-width: 500px;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid #eee;
+
+	h3 {
+		margin: 0;
+		font-size: 1.2rem;
+		color: #333;
+	}
+}
+
+.closeButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.25rem;
+	color: #666;
+
+	&:hover {
+		color: #333;
+	}
+}
+
+.modalBody {
+	padding: 1.5rem;
+}
+
+.detailRow {
+	display: flex;
+	margin-bottom: 1rem;
+	align-items: flex-start;
+}
+
+.detailLabel {
+	font-weight: 600;
+	min-width: 100px;
+	color: #555;
+}
+
+.detailValue {
+	color: #333;
+	flex: 1;
+}
+
+.modalFooter {
+	display: flex;
+	gap: 1rem;
+	padding: 1rem 1.5rem;
+	border-top: 1px solid #eee;
+	justify-content: flex-end;
+}
+
+// ペットリストスタイル（3列レイアウト）
+.petList {
+	width: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-top: 1.5rem;
+	border: 1px solid #eaeaea;
+
+	&__header {
+		display: grid;
+		grid-template-columns: 120px 1fr 150px;
+		background-color: #f3f4f6;
+		font-weight: 600;
+		color: #4b5563;
+		padding: 0.75rem;
+		border-bottom: 1px solid #eaeaea;
+	}
+
+	&__row {
+		display: grid;
+		grid-template-columns: 120px 1fr 150px;
+		padding: 0.75rem;
+		border-bottom: 1px solid #eaeaea;
+		transition: background-color 0.2s;
+		cursor: pointer;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		&:hover {
+			background-color: #f9fafb;
+		}
+	}
+
+	&__cell {
+		display: flex;
+		align-items: center;
+		font-size: 0.9rem;
+		color: #4b5563;
+		padding: 0 0.5rem;
+	}
+}
+
+.actionButtons {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.approveButton,
+.rejectButton {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.4rem 0.75rem;
+	border-radius: 4px;
+	border: none;
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	svg {
+		width: 18px;
+		height: 18px;
+	}
+}
+
+.approveButton {
+	background-color: #0cb66e;
+	color: white;
+
+	&:hover {
+		background-color: #0a9e5c;
+	}
+}
+
+.rejectButton {
+	background-color: #ef4444;
+	color: white;
+
+	&:hover {
+		background-color: #dc2626;
+	}
+}
+
+// ワクチン情報スタイル
+.vaccineSection {
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid #eee;
+}
+
+.vaccineTitle {
+	margin: 0 0 1rem 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #2563eb;
+}
+
+.photoContainer {
+	margin-top: 0.5rem;
+}
+
+.vaccineThumbnail {
+	max-width: 150px;
+	max-height: 100px;
+	object-fit: cover;
+	border-radius: 4px;
+	border: 1px solid #ddd;
+	transition: transform 0.2s, box-shadow 0.2s;
+
+	&:hover {
+		transform: scale(1.05);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	}
+}
+
+// 写真拡大モーダル
+.photoModalContent {
+	background: white;
+	border-radius: 0.5rem;
+	width: 90%;
+	max-width: 800px;
+	max-height: 90vh;
+	overflow: hidden;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.photoModalHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid #eee;
+	background: #f8f9fa;
+
+	h3 {
+		margin: 0;
+		font-size: 1.2rem;
+		color: #333;
+	}
+}
+
+.photoModalBody {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 1rem;
+	background: #f8f9fa;
+	min-height: 300px;
+}
+
+// レスポンシブデザイン
+@media (max-width: 1024px) {
+	.petList {
+		overflow-x: auto;
+
+		&__header,
+		&__row {
+			min-width: 400px;
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.actionButtons {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.modalContent {
+		width: 95%;
+		margin: 1rem;
+	}
+
+	.detailRow {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.detailLabel {
+		min-width: auto;
+		font-weight: 700;
+	}
+}

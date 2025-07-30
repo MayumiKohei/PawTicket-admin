@@ -1,0 +1,457 @@
+// サイドバーとレイアウト
+.container {
+	display: grid;
+	grid-template-columns: 250px 1fr;
+	min-height: 100vh;
+}
+
+// サイドバースタイル
+.sidebar {
+	background-color: #1e293b;
+	color: #f8fafc;
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+
+	&__header {
+		margin-bottom: 2rem;
+	}
+
+	&__title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		letter-spacing: 0.5px;
+	}
+
+	&__subtitle {
+		font-size: 0.875rem;
+		color: #94a3b8;
+		display: block;
+		margin-top: 0.25rem;
+	}
+
+	&__nav {
+		flex: 1;
+	}
+
+	&__menu {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	&__menuItem {
+		margin-bottom: 0.5rem;
+	}
+
+	&__link {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.75rem;
+		border-radius: 0.375rem;
+		color: #cbd5e1;
+		text-decoration: none;
+		transition: all 0.2s;
+
+		svg {
+			width: 20px;
+			height: 20px;
+		}
+
+		&:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+			color: #f8fafc;
+		}
+	}
+
+	&__footer {
+		margin-top: auto;
+		padding-top: 1rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	&__time {
+		font-size: 0.875rem;
+		color: #94a3b8;
+		text-align: center;
+	}
+}
+
+// アクティブリンクスタイル
+.active {
+	background-color: #0070f3;
+	color: white;
+
+	&:hover {
+		background-color: #0070f3;
+		color: white;
+	}
+}
+
+// メインコンテンツスタイル
+.main {
+	background-color: #f8fafc;
+	padding: 1.5rem;
+
+	&__header {
+		margin-bottom: 1.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid #e2e8f0;
+	}
+
+	&__title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #1e293b;
+	}
+
+	&__content {
+		background-color: white;
+		border-radius: 0.5rem;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		padding: 1.5rem;
+	}
+}
+
+// テーブルスタイル
+.petList {
+	width: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid #eaeaea;
+
+	&__header {
+		display: grid;
+		grid-template-columns: 0.5fr 1fr 1fr 1fr 0.8fr 1.2fr 1fr 1fr;
+		background-color: #f3f4f6;
+		font-weight: 600;
+		color: #4b5563;
+		padding: 0.75rem;
+		border-bottom: 1px solid #eaeaea;
+	}
+
+	&__row {
+		display: grid;
+		grid-template-columns: 0.5fr 1fr 1fr 1fr 0.8fr 1.2fr 1fr 1fr;
+		padding: 0.75rem;
+		border-bottom: 1px solid #eaeaea;
+		transition: background-color 0.2s;
+
+		&:last-child {
+			border-bottom: none;
+		}
+
+		&:hover {
+			background-color: #f9fafb;
+		}
+	}
+
+	&__cell {
+		display: flex;
+		align-items: center;
+		font-size: 0.9rem;
+		color: #4b5563;
+	}
+}
+
+// レスポンシブデザイン
+@media (max-width: 1024px) {
+	.petList {
+		overflow-x: auto;
+
+		&__header,
+		&__row {
+			min-width: 900px;
+		}
+	}
+}
+
+// モーダルスタイル
+.modalOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.modalContent {
+	background: white;
+	border-radius: 12px;
+	padding: 0;
+	max-width: 800px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalHeader {
+	padding: 1.5rem;
+	border-bottom: 1px solid #e5e7eb;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	h3 {
+		margin: 0;
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #111827;
+	}
+}
+
+.modalBody {
+	padding: 1.5rem;
+	max-height: 60vh;
+	overflow-y: auto;
+}
+
+.modalFooter {
+	padding: 1rem 1.5rem;
+	border-top: 1px solid #e5e7eb;
+	display: flex;
+	gap: 0.75rem;
+	justify-content: flex-end;
+}
+
+.closeButton {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #6b7280;
+	padding: 0.25rem;
+	border-radius: 0.25rem;
+	transition: color 0.2s;
+
+	&:hover {
+		color: #374151;
+	}
+
+	svg {
+		width: 24px;
+		height: 24px;
+	}
+}
+
+.revertButton {
+	background-color: #f59e0b;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background-color: #d97706;
+	}
+}
+
+.closeModalButton {
+	background-color: #6b7280;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background-color: #374151;
+	}
+}
+
+.detailRow {
+	display: flex;
+	margin-bottom: 1rem;
+	align-items: flex-start;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.detailLabel {
+	font-weight: 600;
+	color: #374151;
+	min-width: 120px;
+	margin-right: 1rem;
+}
+
+.detailValue {
+	color: #1f2937;
+	flex: 1;
+}
+
+.vaccineSection {
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid #e5e7eb;
+
+	&:first-child {
+		margin-top: 0;
+		padding-top: 0;
+		border-top: none;
+	}
+}
+
+.vaccineTitle {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #111827;
+	margin-bottom: 1rem;
+}
+
+.photoContainer {
+	margin-top: 0.5rem;
+}
+
+.vaccineThumbnail {
+	border-radius: 8px;
+	border: 2px solid #e5e7eb;
+	cursor: pointer;
+	transition: border-color 0.2s;
+
+	&:hover {
+		border-color: #28a745;
+	}
+}
+
+.photoModalContent {
+	background: white;
+	border-radius: 12px;
+	padding: 0;
+	max-width: 90vw;
+	max-height: 90vh;
+	overflow: hidden;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.photoModalHeader {
+	padding: 1rem;
+	border-bottom: 1px solid #e5e7eb;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	h3 {
+		margin: 0;
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: #111827;
+	}
+}
+
+.photoModalBody {
+	padding: 1rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+// ボタンスタイル
+.photoButton {
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.updateButton {
+	padding: 0.5rem 1rem;
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: 0.25rem;
+	cursor: pointer;
+
+	&:hover {
+		background-color: #218838;
+	}
+}
+
+.logoutButton {
+	background: none;
+	border: none;
+	color: #666;
+	cursor: pointer;
+	font-size: 0.9rem;
+	margin-top: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&:hover {
+		color: #333;
+	}
+}
+
+.listButton {
+	border: none;
+	background: none;
+	width: 100%;
+	cursor: pointer;
+}
+
+.loadingContainer {
+	text-align: center;
+	padding: 2rem;
+}
+
+.emptyContainer {
+	text-align: center;
+	padding: 2rem;
+}
+
+@media (max-width: 768px) {
+	.container {
+		grid-template-columns: 1fr;
+	}
+
+	.sidebar {
+		display: none;
+	}
+
+	.modalContent {
+		width: 95%;
+		margin: 1rem;
+	}
+
+	.modalBody {
+		padding: 1rem;
+	}
+
+	.modalFooter {
+		flex-direction: column;
+		gap: 0.5rem;
+
+		button {
+			width: 100%;
+		}
+	}
+
+	.detailRow {
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.detailLabel {
+		min-width: auto;
+		margin-right: 0;
+		margin-bottom: 0.25rem;
+	}
+}
