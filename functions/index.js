@@ -17,10 +17,8 @@ let pawticketApp;
 try {
   pawticketApp = admin.app('pawticket-app');
 } catch (error) {
-  // サービスアカウントキーを使用して初期化
-  const serviceAccount = require('./sa.json');
+  // 環境変数を使用して初期化（本番環境では自動的にサービスアカウントが使用される）
   pawticketApp = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
     projectId: "pawticket-6b651",
     storageBucket: "pawticket-6b651.firebasestorage.app",
   }, 'pawticket-app');
