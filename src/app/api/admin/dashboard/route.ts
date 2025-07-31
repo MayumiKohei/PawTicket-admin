@@ -1,6 +1,5 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from "next/server";
-import { pawticketDb } from "../../../../lib/firebaseAdmin";
 
 // Node.js ランタイムで実行する (Edge ランタイムでは firebase-admin が動かないため必須)
 export const runtime = "nodejs";
@@ -35,6 +34,18 @@ export async function GET() {
 		// デバッグ情報を追加
 		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
 
+		// グローバル変数から pawticketDb を取得
+		const pawticketDb = (global as any).pawticketDb;
+		if (!pawticketDb) {
+			return NextResponse.json(
+				{
+					success: false,
+					message: "Firebase Admin SDK が初期化されていません",
+				},
+				{ status: 500 }
+			);
+		}
+
 		// ── (A) totalUsers: /users コレクションのドキュメント数を取得 ────────────
 		const usersSnapshot = await pawticketDb.collection("users").get();
 		const totalUsers = usersSnapshot.size;
@@ -52,7 +63,7 @@ export async function GET() {
 					.collection("pets")
 					.get();
 
-				petsSnapshot.docs.forEach((petDoc) => {
+				petsSnapshot.docs.forEach((petDoc: any) => {
 					const petData = petDoc.data();
 					if (petData.status === "申請中") {
 						pendingCount++;

@@ -52,6 +52,9 @@ try {
 }
 const pawticketDb = pawticketApp.firestore();
 
+// グローバル変数として設定（Next.js API ルートで使用）
+global.pawticketDb = pawticketDb;
+
 // Next.js アプリを最初に初期化
 const dev = process.env.NODE_ENV !== 'production';
 const nextApp = next({ dev, conf: { distDir: '.next' } });
