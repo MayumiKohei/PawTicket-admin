@@ -5,12 +5,12 @@
     "/api/admin/approved": {},
     "/api/admin/dashboard": {},
     "/api/admin/fetchUsers": {},
+    "/api/admin/application-counter": {},
     "/api/admin/initialize-counter": {},
+    "/api/admin/reject": {},
     "/api/admin/pending": {},
     "/api/admin/notifications": {},
     "/api/admin/rejected": {},
-    "/api/admin/revert-to-pending": {},
-    "/api/admin/application-counter": {},
-    "/api/admin/reject": {}
+    "/api/admin/revert-to-pending": {}
   }
 }
