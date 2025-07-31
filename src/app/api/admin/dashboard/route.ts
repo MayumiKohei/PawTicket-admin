@@ -2,7 +2,6 @@
 import { NextResponse } from "next/server";
 import { pawticketDb } from "../../../../lib/firebaseAdmin";
 import { cookies } from "next/headers";
-import { authB } from "../../../firebase";
 import { getAuth } from "firebase-admin/auth";
 
 // Node.js ランタイムで実行する (Edge ランタイムでは firebase-admin が動かないため必須)
