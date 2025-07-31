@@ -1,8 +1,6 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from "next/server";
 import { pawticketDb } from "../../../../lib/firebaseAdmin";
-import { cookies } from "next/headers";
-import { getAuth } from "firebase-admin/auth";
 
 // Node.js ランタイムで実行する (Edge ランタイムでは firebase-admin が動かないため必須)
 export const runtime = "nodejs";
