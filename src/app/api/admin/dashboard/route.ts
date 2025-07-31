@@ -9,7 +9,8 @@ export const runtime = "nodejs";
 
 export async function GET() {
 	try {
-		// 認証チェック
+		// 認証チェック（一時的に無効化）
+		/*
 		const cookieStore = await cookies();
 		const sessionCookie = cookieStore.get("admin-session")?.value;
 
@@ -31,6 +32,7 @@ export async function GET() {
 				{ status: 401 }
 			);
 		}
+		*/
 
 		// デバッグ情報を追加
 		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
