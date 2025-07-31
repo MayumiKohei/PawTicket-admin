@@ -21,10 +21,26 @@ try {
   let credential;
   if (process.env.NODE_ENV === 'production') {
     // 本番環境: サービスアカウントキー（GitHub Actions で作成）
-    const serviceAccount = require('./sa.json');
-    credential = admin.credential.cert(serviceAccount);
+    console.log('本番環境: sa.json の存在確認開始');
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const saPath = path.join(__dirname, 'sa.json');
+      console.log('sa.json パス:', saPath);
+      console.log('sa.json 存在:', fs.existsSync(saPath));
+      if (fs.existsSync(saPath)) {
+        console.log('sa.json サイズ:', fs.statSync(saPath).size, 'bytes');
+      }
+      const serviceAccount = require('./sa.json');
+      console.log('sa.json 読み込み成功, project_id:', serviceAccount.project_id);
+      credential = admin.credential.cert(serviceAccount);
+    } catch (saError) {
+      console.error('sa.json 読み込みエラー:', saError);
+      throw saError;
+    }
   } else {
     // ローカル開発: 環境変数（GOOGLE_APPLICATION_CREDENTIALS）
+    console.log('ローカル環境: GOOGLE_APPLICATION_CREDENTIALS を使用');
     credential = admin.credential.applicationDefault();
   }
   
