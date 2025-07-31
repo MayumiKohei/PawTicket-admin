@@ -17,11 +17,12 @@ let pawticketApp;
 try {
   pawticketApp = admin.app('pawticket-app');
 } catch (error) {
-  // 本番環境では自動認証、ローカルでは環境変数を使用
+  // 本番環境ではサービスアカウントキー、ローカルでは環境変数を使用
   let credential;
   if (process.env.NODE_ENV === 'production') {
-    // 本番環境: Cloud Functions の自動認証
-    credential = admin.credential.applicationDefault();
+    // 本番環境: サービスアカウントキー（GitHub Actions で作成）
+    const serviceAccount = require('./sa.json');
+    credential = admin.credential.cert(serviceAccount);
   } else {
     // ローカル開発: 環境変数（GOOGLE_APPLICATION_CREDENTIALS）
     credential = admin.credential.applicationDefault();
