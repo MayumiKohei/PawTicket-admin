@@ -2,6 +2,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import * as admin from "firebase-admin";
+import pawticketServiceAccount from "../../firebase-admin/pawticket-app-firebase.json";
 // import "firebase/storage";
 
 // 管理用
@@ -43,7 +44,7 @@ const pawticketApp =
 	admin.initializeApp(
 		{
 			credential: admin.credential.cert(
-				require("../../firebase-admin/pawticket-app-firebase.json")
+				pawticketServiceAccount as admin.ServiceAccount
 			),
 			projectId: "pawticket-6b651",
 			storageBucket: "pawticket-6b651.firebasestorage.app",
