@@ -35,7 +35,7 @@ export default function AdminLogin() {
 			const adminUIDs = [
 				"3S6PdCwFK2TjGgQMUBnGkp9gTn53",
 				"U0rr9czqZGbmR1khmfhUSuPXEtJ2",
-				"3S6PdCwFK2TjGgQMUBnGkp9gTn53",
+				"TpuMV2JJ6eMvT6ZDeVsjqGhjbli1",
 			];
 
 			if (adminUIDs.includes(userCredential.user.uid)) {

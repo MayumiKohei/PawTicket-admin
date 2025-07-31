@@ -23,7 +23,7 @@ export const useAuth = () => useContext(AuthContext);
 const ADMIN_UIDS = [
 	"3S6PdCwFK2TjGgQMUBnGkp9gTn53", // 既存の管理者UID
 	"U0rr9czqZGbmR1khmfhUSuPXEtJ2",
-	"3S6PdCwFK2TjGgQMUBnGkp9gTn53",
+	"TpuMV2JJ6eMvT6ZDeVsjqGhjbli1",
 ];
 
 export default function AuthProvider({
