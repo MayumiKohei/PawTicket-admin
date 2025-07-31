@@ -35,7 +35,7 @@ export async function GET() {
 		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
 
 		// グローバル変数から pawticketDb を取得
-		const pawticketDb = (global as any).pawticketDb;
+		const pawticketDb = (global as { pawticketDb?: any }).pawticketDb;
 		if (!pawticketDb) {
 			return NextResponse.json(
 				{
@@ -63,14 +63,16 @@ export async function GET() {
 					.collection("pets")
 					.get();
 
-				petsSnapshot.docs.forEach((petDoc: any) => {
-					const petData = petDoc.data();
-					if (petData.status === "申請中") {
-						pendingCount++;
-					} else if (petData.status === "認証済み") {
-						approvedCount++;
+				petsSnapshot.docs.forEach(
+					(petDoc: { data: () => { status?: string } }) => {
+						const petData = petDoc.data();
+						if (petData.status === "申請中") {
+							pendingCount++;
+						} else if (petData.status === "認証済み") {
+							approvedCount++;
+						}
 					}
-				});
+				);
 			} catch (error) {
 				console.warn(
 					`Failed to fetch pets for user ${userDoc.id}:`,
