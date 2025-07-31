@@ -1,12 +1,37 @@
 // app/api/admin/dashboard/route.ts
 import { NextResponse } from "next/server";
 import { pawticketDb } from "../../../../lib/firebaseAdmin";
+import { cookies } from "next/headers";
+import { getAuth } from "firebase-admin/auth";
 
 // Node.js ランタイムで実行する (Edge ランタイムでは firebase-admin が動かないため必須)
 export const runtime = "nodejs";
 
 export async function GET() {
 	try {
+		// 認証チェック
+		const cookieStore = await cookies();
+		const sessionCookie = cookieStore.get("admin-session")?.value;
+
+		if (!sessionCookie) {
+			return NextResponse.json(
+				{ success: false, message: "認証が必要です" },
+				{ status: 401 }
+			);
+		}
+
+		// IDトークンを検証
+		try {
+			const decodedToken = await getAuth().verifyIdToken(sessionCookie);
+			console.log("認証成功:", decodedToken.uid);
+		} catch (error) {
+			console.error("トークン検証エラー:", error);
+			return NextResponse.json(
+				{ success: false, message: "無効なトークンです" },
+				{ status: 401 }
+			);
+		}
+
 		// デバッグ情報を追加
 		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
 
