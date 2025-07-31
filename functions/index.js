@@ -17,19 +17,10 @@ let pawticketApp;
 try {
   pawticketApp = admin.app('pawticket-app');
 } catch (error) {
-  // 環境変数またはサービスアカウントキーを使用して初期化
-  let credential;
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-    // 環境変数が設定されている場合はそれを使用
-    credential = admin.credential.applicationDefault();
-  } else {
-    // ローカル開発用のサービスアカウントキーを使用
-    const serviceAccount = require('./sa.json');
-    credential = admin.credential.cert(serviceAccount);
-  }
-  
+  // サービスアカウントキーを使用して初期化
+  const serviceAccount = require('./sa.json');
   pawticketApp = admin.initializeApp({
-    credential,
+    credential: admin.credential.cert(serviceAccount),
     projectId: "pawticket-6b651",
     storageBucket: "pawticket-6b651.firebasestorage.app",
   }, 'pawticket-app');
