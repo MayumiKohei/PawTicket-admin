@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ptAdminStorage } from "@/lib/firebaseAdmin";
+import { pawticketStorage } from "@/lib/firebaseAdmin";
 
-const bucket = ptAdminStorage.bucket();
+const bucket = pawticketStorage.bucket();
 
 export async function POST(request: NextRequest) {
 	try {

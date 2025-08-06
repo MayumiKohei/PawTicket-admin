@@ -35,7 +35,9 @@ export async function GET() {
 		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
 
 		// グローバル変数から pawticketDb を取得
-		const pawticketDb = (global as { pawticketDb?: any }).pawticketDb;
+		const pawticketDb = (
+			global as { pawticketDb?: FirebaseFirestore.Firestore }
+		).pawticketDb;
 		if (!pawticketDb) {
 			return NextResponse.json(
 				{
