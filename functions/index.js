@@ -17,31 +17,40 @@ let pawticketApp;
 try {
   pawticketApp = admin.app('pawticket-app');
 } catch (error) {
-  // 本番環境ではサービスアカウントキー、ローカルでは環境変数を使用
+  // 包括的な認証方法を使用
   let credential;
-  if (process.env.NODE_ENV === 'production') {
-    // 本番環境: サービスアカウントキー（GitHub Actions で作成）
-    console.log('本番環境: sa.json の存在確認開始');
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const saPath = path.join(__dirname, 'sa.json');
-      console.log('sa.json パス:', saPath);
-      console.log('sa.json 存在:', fs.existsSync(saPath));
-      if (fs.existsSync(saPath)) {
-        console.log('sa.json サイズ:', fs.statSync(saPath).size, 'bytes');
+  
+  // 1. 環境変数が設定されている場合は環境変数を使用
+  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    console.log('環境変数を使用してFirebase Admin SDKを初期化');
+    credential = admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    });
+  }
+  // 2. sa.jsonファイルが存在する場合はsa.jsonを使用
+  else {
+    const fs = require('fs');
+    const path = require('path');
+    const saPath = path.join(__dirname, 'sa.json');
+    console.log('sa.json パス:', saPath);
+    console.log('sa.json 存在:', fs.existsSync(saPath));
+    
+    if (fs.existsSync(saPath)) {
+      try {
+        const serviceAccount = require('./sa.json');
+        console.log('sa.json 読み込み成功, project_id:', serviceAccount.project_id);
+        credential = admin.credential.cert(serviceAccount);
+      } catch (saError) {
+        console.error('sa.json 読み込みエラー:', saError);
+        console.log('Application Default Credentialsを使用');
+        credential = admin.credential.applicationDefault();
       }
-      const serviceAccount = require('./sa.json');
-      console.log('sa.json 読み込み成功, project_id:', serviceAccount.project_id);
-      credential = admin.credential.cert(serviceAccount);
-    } catch (saError) {
-      console.error('sa.json 読み込みエラー:', saError);
-      throw saError;
+    } else {
+      console.log('sa.jsonが見つからないため、Application Default Credentialsを使用');
+      credential = admin.credential.applicationDefault();
     }
-  } else {
-    // ローカル開発: 環境変数（GOOGLE_APPLICATION_CREDENTIALS）
-    console.log('ローカル環境: GOOGLE_APPLICATION_CREDENTIALS を使用');
-    credential = admin.credential.applicationDefault();
   }
   
   pawticketApp = admin.initializeApp({

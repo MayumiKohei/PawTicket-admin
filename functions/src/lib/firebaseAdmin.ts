@@ -2,50 +2,53 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import * as admin from "firebase-admin";
-import pawticketServiceAccount from "../../firebase-admin/pawticket-app-firebase.json";
 // import "firebase/storage";
-
-// 管理用
-const ptAdminServiceAccountPath = join(
-	process.cwd(),
-	"firebase-admin",
-	"pt-admin-firebase.json"
-);
-const ptAdminRaw = readFileSync(ptAdminServiceAccountPath, {
-	encoding: "utf-8",
-});
-const ptAdminServiceAccount = JSON.parse(ptAdminRaw);
 
 function getAppByName(name: string): admin.app.App | undefined {
 	return admin.apps.find((app) => app?.name === name) || undefined;
 }
 
-// 管理用Admin
-const ptAdminApp =
-	getAppByName("pt-admin") ??
-	admin.initializeApp(
-		{
-			credential: admin.credential.cert({
-				projectId: ptAdminServiceAccount.project_id,
-				clientEmail: ptAdminServiceAccount.client_email,
-				privateKey: ptAdminServiceAccount.private_key.replace(
-					/\\n/g,
-					"\n"
-				),
-			}),
-			storageBucket: "pt-admin-4d877.firebasestorage.app",
-		},
-		"pt-admin"
-	);
+// 認証方法を決定する関数
+function getPawticketCredential(): admin.credential.Credential {
+	// 1. 環境変数が設定されている場合は環境変数を使用
+	if (
+		process.env.FIREBASE_PROJECT_ID &&
+		process.env.FIREBASE_CLIENT_EMAIL &&
+		process.env.FIREBASE_PRIVATE_KEY
+	) {
+		console.log("環境変数を使用してFirebase Admin SDKを初期化");
+		return admin.credential.cert({
+			projectId: process.env.FIREBASE_PROJECT_ID,
+			clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+			privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+		});
+	}
 
-// アプリ用Admin
+	// 2. sa.jsonファイルが存在する場合はsa.jsonを使用
+	const saPath = join(process.cwd(), "sa.json");
+	try {
+		const saRaw = readFileSync(saPath, { encoding: "utf-8" });
+		const saServiceAccount = JSON.parse(saRaw);
+		console.log("sa.jsonを使用してFirebase Admin SDKを初期化");
+		return admin.credential.cert({
+			projectId: saServiceAccount.project_id,
+			clientEmail: saServiceAccount.client_email,
+			privateKey: saServiceAccount.private_key.replace(/\\n/g, "\n"),
+		});
+	} catch (error) {
+		console.log(
+			"sa.jsonが見つからないため、Application Default Credentialsを使用"
+		);
+		return admin.credential.applicationDefault();
+	}
+}
+
+// アプリ用Admin - 包括的な認証方法を使用
 const pawticketApp =
 	getAppByName("pawticket-app") ??
 	admin.initializeApp(
 		{
-			credential: admin.credential.cert(
-				pawticketServiceAccount as admin.ServiceAccount
-			),
+			credential: getPawticketCredential(),
 			projectId: "pawticket-6b651",
 			storageBucket: "pawticket-6b651.firebasestorage.app",
 		},
@@ -54,15 +57,11 @@ const pawticketApp =
 
 // デバッグ情報を出力
 console.log("Firebase Admin SDK 初期化完了:", {
-	ptAdminProjectId: ptAdminApp.options.projectId,
 	pawticketProjectId: pawticketApp.options.projectId,
+	credentialType: pawticketApp.options.credential ? "設定済み" : "未設定",
 });
 
 // エクスポート
-export const ptAdminAuth = ptAdminApp.auth();
-export const ptAdminDb = ptAdminApp.firestore();
-export const ptAdminStorage = ptAdminApp.storage();
-
 export const pawticketAuth = pawticketApp.auth();
 export const pawticketDb = pawticketApp.firestore();
 export const pawticketStorage = pawticketApp.storage();

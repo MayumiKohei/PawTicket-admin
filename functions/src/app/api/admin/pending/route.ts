@@ -6,6 +6,11 @@ export const runtime = "nodejs";
 
 export async function GET() {
 	try {
+		// デバッグ情報を追加
+		console.log("Pending API: pawticketDb の確認:", {
+			isDefined: !!pawticketDb,
+		});
+
 		// 全ユーザーを取得
 		const usersSnapshot = await pawticketDb.collection("users").get();
 
