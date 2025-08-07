@@ -10,7 +10,15 @@ function getAppByName(name: string): admin.app.App | undefined {
 
 // 認証方法を決定する関数
 function getPawticketCredential(): admin.credential.Credential {
-	// 1. 環境変数が設定されている場合は環境変数を使用
+	// 1. GOOGLE_APPLICATION_CREDENTIALS が設定されている場合は Application Default Credentials を使用
+	if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+		console.log(
+			"GOOGLE_APPLICATION_CREDENTIALSを使用してFirebase Admin SDKを初期化"
+		);
+		return admin.credential.applicationDefault();
+	}
+
+	// 2. 環境変数が設定されている場合は環境変数を使用
 	if (
 		process.env.FIREBASE_PROJECT_ID &&
 		process.env.FIREBASE_CLIENT_EMAIL &&
@@ -24,7 +32,7 @@ function getPawticketCredential(): admin.credential.Credential {
 		});
 	}
 
-	// 2. sa.jsonファイルが存在する場合はsa.jsonを使用
+	// 3. sa.jsonファイルが存在する場合はsa.jsonを使用
 	const saPath = join(process.cwd(), "sa.json");
 	try {
 		const saRaw = readFileSync(saPath, { encoding: "utf-8" });
@@ -65,3 +73,8 @@ console.log("Firebase Admin SDK 初期化完了:", {
 export const pawticketAuth = pawticketApp.auth();
 export const pawticketDb = pawticketApp.firestore();
 export const pawticketStorage = pawticketApp.storage();
+
+// グローバル変数として設定（Next.js API ルートで使用）
+if (typeof global !== "undefined") {
+	(global as any).pawticketDb = pawticketDb;
+}

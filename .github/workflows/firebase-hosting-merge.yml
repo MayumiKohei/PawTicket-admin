@@ -53,7 +53,7 @@ jobs:
               working-directory: functions
               env:
                   FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-                  GOOGLE_APPLICATION_CREDENTIALS: ./sa.json
+                  GOOGLE_APPLICATION_CREDENTIALS: /workspace/sa.json
               run: |
                   yarn install --frozen-lockfile
                   npx firebase deploy \

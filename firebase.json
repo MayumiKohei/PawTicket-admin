@@ -7,6 +7,9 @@
       "region": "us-central1",
       "dockerRegistry": "ARTIFACT_REGISTRY",
       "memory": "512MiB",
+      "environmentVariables": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "/workspace/sa.json"
+      },
       "ignore": [
         "node_modules",
         ".git",

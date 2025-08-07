@@ -12,57 +12,9 @@ if (!admin.apps.length) {
 }
 const db = admin.firestore();
 
-// pawticket-app プロジェクト用の Admin SDK 初期化
-let pawticketApp;
-try {
-  pawticketApp = admin.app('pawticket-app');
-} catch (error) {
-  // 包括的な認証方法を使用
-  let credential;
-  
-  // 1. 環境変数が設定されている場合は環境変数を使用
-  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-    console.log('環境変数を使用してFirebase Admin SDKを初期化');
-    credential = admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    });
-  }
-  // 2. sa.jsonファイルが存在する場合はsa.jsonを使用
-  else {
-    const fs = require('fs');
-    const path = require('path');
-    const saPath = path.join(__dirname, 'sa.json');
-    console.log('sa.json パス:', saPath);
-    console.log('sa.json 存在:', fs.existsSync(saPath));
-    
-    if (fs.existsSync(saPath)) {
-      try {
-        const serviceAccount = require('./sa.json');
-        console.log('sa.json 読み込み成功, project_id:', serviceAccount.project_id);
-        credential = admin.credential.cert(serviceAccount);
-      } catch (saError) {
-        console.error('sa.json 読み込みエラー:', saError);
-        console.log('Application Default Credentialsを使用');
-        credential = admin.credential.applicationDefault();
-      }
-    } else {
-      console.log('sa.jsonが見つからないため、Application Default Credentialsを使用');
-      credential = admin.credential.applicationDefault();
-    }
-  }
-  
-  pawticketApp = admin.initializeApp({
-    credential,
-    projectId: "pawticket-6b651",
-    storageBucket: "pawticket-6b651.firebasestorage.app",
-  }, 'pawticket-app');
-}
-const pawticketDb = pawticketApp.firestore();
-
+// pawticket-app プロジェクト用の Admin SDK 初期化は functions/src/lib/firebaseAdmin.ts で行う
 // グローバル変数として設定（Next.js API ルートで使用）
-global.pawticketDb = pawticketDb;
+global.pawticketDb = null; // 初期化は functions/src/lib/firebaseAdmin.ts で行う
 
 // Next.js アプリを最初に初期化
 const dev = process.env.NODE_ENV !== 'production';
