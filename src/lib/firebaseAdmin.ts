@@ -29,7 +29,7 @@ function getPawticketCredential(): admin.credential.Credential {
 			clientEmail: saServiceAccount.client_email,
 			privateKey: saServiceAccount.private_key.replace(/\\n/g, "\n"),
 		});
-	} catch (error) {
+	} catch {
 		console.log(
 			"sa.jsonが見つからないため、Application Default Credentialsを使用"
 		);
