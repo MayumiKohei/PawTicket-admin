@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 		const petData = petDoc.data();
 
 		const updateData: Record<string, unknown> = {
-			status: "無効",
+			status: "却下済み",
 			rejectedAt: new Date(),
 			// 申請IDが存在しない場合は生成して保存
 			applicationId:
