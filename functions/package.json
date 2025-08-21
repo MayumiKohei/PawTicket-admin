@@ -1,23 +1,23 @@
 {
   "name": "functions",
+  "private": true,
   "main": "index.js",
+  "engines": { "node": "20" },
   "scripts": {
-    "start": "functions-framework",
-    "logs": "firebase functions:log"
-  },
-  "engines": {
-    "node": "20"
+    "clean": "rimraf lib",
+    "build": "tsc -p .",
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "firebase-admin": "^13.4.0",
-    "firebase-functions": "^4.4.2",
-    "next": "^15.4.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "firebase-functions": "^6.0.0"
   },
-  "private": true,
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5",
+    "@types/node": "^20",
+    "rimraf": "^6",
+    "eslint": "^9"
   }
 }
