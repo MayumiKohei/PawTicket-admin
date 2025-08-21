@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Node.js ランタイムで実行する
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
 	try {
 		const { idToken } = await request.json();
