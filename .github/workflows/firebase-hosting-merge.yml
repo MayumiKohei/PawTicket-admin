@@ -46,10 +46,6 @@ jobs:
               working-directory: functions
               run: yarn install --frozen-lockfile
 
-            - name: Build Functions
-              working-directory: functions
-              run: yarn build # ← functions/package.json の "build": "tsc" 等に合わせる
-
             # Deploy Functions (Gen2)
             - name: Deploy Functions (Gen2)
               run: |
