@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Node.js ランタイムで実行する
+export const runtime = "nodejs";
+
 export async function POST() {
 	try {
 		// レスポンスを作成
