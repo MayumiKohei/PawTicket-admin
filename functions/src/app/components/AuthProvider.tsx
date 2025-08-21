@@ -22,6 +22,8 @@ export const useAuth = () => useContext(AuthContext);
 // 管理者UIDのリスト（Firestore Security Rulesと同じ）
 const ADMIN_UIDS = [
 	"3S6PdCwFK2TjGgQMUBnGkp9gTn53", // 既存の管理者UID
+	"U0rr9czqZGbmR1khmfhUSuPXEtJ2",
+	"TpuMV2JJ6eMvT6ZDeVsjqGhjbli1",
 ];
 
 export default function AuthProvider({
@@ -31,10 +33,22 @@ export default function AuthProvider({
 }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [mounted, setMounted] = useState(false);
 	const router = useRouter();
 	const pathname = usePathname();
 
+	// クライアントサイドでのみマウント状態を設定
 	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	useEffect(() => {
+		// クライアントサイドでのみ認証状態を監視
+		if (typeof window === "undefined" || !authB) {
+			setLoading(false);
+			return;
+		}
+
 		const unsubscribe = onAuthStateChanged(authB, (user) => {
 			setUser(user);
 			setLoading(false);
@@ -50,7 +64,7 @@ export default function AuthProvider({
 					router.push("/");
 				} else {
 					// 管理者権限がない場合はログアウト
-					authB.signOut();
+					authB?.signOut();
 				}
 			}
 		});
@@ -65,6 +79,17 @@ export default function AuthProvider({
 		loading,
 		isAdmin,
 	};
+
+	// マウント前はローディング表示
+	if (!mounted) {
+		return (
+			<AuthContext.Provider value={value}>
+				<div className="app_authLoading__rYJvP">
+					認証情報を確認中...
+				</div>
+			</AuthContext.Provider>
+		);
+	}
 
 	return (
 		<AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -18,6 +18,12 @@ export default function AdminLogin() {
 		setLoading(true);
 		setError("");
 
+		if (!authB) {
+			setError("認証サービスが利用できません。");
+			setLoading(false);
+			return;
+		}
+
 		try {
 			const userCredential = await signInWithEmailAndPassword(
 				authB,
@@ -27,7 +33,9 @@ export default function AdminLogin() {
 
 			// 管理者UIDの確認（現在のルールに記載されているUID）
 			const adminUIDs = [
-				"3S6PdCwFK2TjGgQMUBnGkp9gTn53", // 既存の管理者UID
+				"3S6PdCwFK2TjGgQMUBnGkp9gTn53",
+				"U0rr9czqZGbmR1khmfhUSuPXEtJ2",
+				"TpuMV2JJ6eMvT6ZDeVsjqGhjbli1",
 			];
 
 			if (adminUIDs.includes(userCredential.user.uid)) {
@@ -52,7 +60,7 @@ export default function AdminLogin() {
 				}
 			} else {
 				setError("管理者権限がありません。");
-				await authB.signOut();
+				await authB?.signOut();
 			}
 		} catch (error) {
 			console.error("ログインエラー:", error);

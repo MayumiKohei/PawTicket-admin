@@ -42,3 +42,5 @@ next-env.d.ts
 
 # firebase-admin 以下は機密情報なのでコミットしない
 /firebase-admin/
+functions/sa.json
+sa.json

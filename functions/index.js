@@ -4,19 +4,17 @@ const next = require('next');
 
 // Firebase Admin 初期化
 if (!admin.apps.length) {
-  const firebaseConfig = {
-    apiKey: "AIzaSyAjmdbaSlO2PJtnThYOI9mrpsoBgq6JWDc",
-    authDomain: "pt-admin-4d877.firebaseapp.com",
-    projectId: "pt-admin-4d877",
-    storageBucket: "pt-admin-4d877.firebasestorage.app",
-    messagingSenderId: "420928013456",
-    appId: "1:420928013456:web:42cde435f10b1949c30415",
-    measurementId: "G-9GWH9VTJP6"
-  };
-
-  admin.initializeApp(firebaseConfig);
+  // 本番環境では自動的にサービスアカウントが使用される
+  admin.initializeApp({
+    projectId: "pawticket-6b651",
+    storageBucket: "pawticket-6b651.firebasestorage.app",
+  });
 }
 const db = admin.firestore();
+
+// pawticket-app プロジェクト用の Admin SDK 初期化は functions/src/lib/firebaseAdmin.ts で行う
+// グローバル変数として設定（Next.js API ルートで使用）
+global.pawticketDb = null; // 初期化は functions/src/lib/firebaseAdmin.ts で行う
 
 // Next.js アプリを最初に初期化
 const dev = process.env.NODE_ENV !== 'production';

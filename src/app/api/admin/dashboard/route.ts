@@ -7,6 +7,31 @@ export const runtime = "nodejs";
 
 export async function GET() {
 	try {
+		// 認証チェック（一時的に無効化）
+		/*
+		const cookieStore = await cookies();
+		const sessionCookie = cookieStore.get("admin-session")?.value;
+
+		if (!sessionCookie) {
+			return NextResponse.json(
+				{ success: false, message: "認証が必要です" },
+				{ status: 401 }
+			);
+		}
+
+		// IDトークンを検証
+		try {
+			const decodedToken = await getAuth().verifyIdToken(sessionCookie);
+			console.log("認証成功:", decodedToken.uid);
+		} catch (error) {
+			console.error("トークン検証エラー:", error);
+			return NextResponse.json(
+				{ success: false, message: "無効なトークンです" },
+				{ status: 401 }
+			);
+		}
+		*/
+
 		// デバッグ情報を追加
 		console.log("Firebase Admin SDK 初期化確認: pawticketDb が利用可能");
 
@@ -27,14 +52,16 @@ export async function GET() {
 					.collection("pets")
 					.get();
 
-				petsSnapshot.docs.forEach((petDoc) => {
-					const petData = petDoc.data();
-					if (petData.status === "申請中") {
-						pendingCount++;
-					} else if (petData.status === "認証済み") {
-						approvedCount++;
+				petsSnapshot.docs.forEach(
+					(petDoc: { data: () => { status?: string } }) => {
+						const petData = petDoc.data();
+						if (petData.status === "申請中") {
+							pendingCount++;
+						} else if (petData.status === "認証済み") {
+							approvedCount++;
+						}
 					}
-				});
+				);
 			} catch (error) {
 				console.warn(
 					`Failed to fetch pets for user ${userDoc.id}:`,

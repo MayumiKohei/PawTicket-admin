@@ -2,15 +2,16 @@
   "version": 1,
   "functions": {
     "/api/admin/application-counter": {},
-    "/api/admin/approved": {},
-    "/api/admin/initialize-counter": {},
-    "/api/admin/notifications": {},
     "/api/admin/approve": {},
+    "/api/admin/approved": {},
     "/api/admin/dashboard": {},
-    "/api/admin/pending": {},
-    "/api/admin/reject": {},
     "/api/admin/fetchUsers": {},
+    "/api/admin/notifications": {},
+    "/api/admin/initialize-counter": {},
+    "/api/admin/reject": {},
+    "/api/admin/pending": {},
+    "/api/admin/revert-to-pending": {},
     "/api/admin/rejected": {},
-    "/api/admin/revert-to-pending": {}
+    "/api/test": {}
   }
 }

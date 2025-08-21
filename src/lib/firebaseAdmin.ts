@@ -1,74 +1,62 @@
 // lib/firebaseAdmin.ts
-import { readFileSync } from "fs";
-import { join } from "path";
 import * as admin from "firebase-admin";
-// import "firebase/storage";
 
-// 管理用
-const ptAdminServiceAccountPath = join(
-	process.cwd(),
-	"firebase-admin",
-	"pt-admin-firebase.json"
-);
-const ptAdminRaw = readFileSync(ptAdminServiceAccountPath, {
-	encoding: "utf-8",
-});
-const ptAdminServiceAccount = JSON.parse(ptAdminRaw);
+/**
+ * 推奨：環境変数 FIREBASE_SERVICE_ACCOUNT_JSON（pawticket用のSA JSON丸ごと）を使う。
+ * 無ければ ADC（Application Default Credentials）にフォールバック。
+ *
+ * - GCP上（Cloud Functions/Run/Hosting(SSR)）では initializeApp() だけでOK（ADC）。
+ * - ローカルは `gcloud auth application-default login` でもOK。必要なら env に JSON を入れる。
+ */
+function initPawticketApp(): admin.app.App {
+	const existing = admin.apps.find((a) => a?.name === "pawticket-app");
+	if (existing) return existing;
 
-// アプリ用
-const pawticketAppServiceAccountPath = join(
-	process.cwd(),
-	"firebase-admin",
-	"pawticket-app-firebase.json"
-);
-const pawticketAppRaw = readFileSync(pawticketAppServiceAccountPath, {
-	encoding: "utf-8",
-});
-const pawticketAppServiceAccount = JSON.parse(pawticketAppRaw);
+	// 1) 環境変数JSON（最優先）：鍵ファイルを置かないためのやり方
+	const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+	if (json) {
+		const sa = JSON.parse(json) as {
+			project_id: string;
+			client_email: string;
+			private_key: string;
+		};
+		return admin.initializeApp(
+			{
+				credential: admin.credential.cert({
+					projectId: sa.project_id,
+					clientEmail: sa.client_email,
+					privateKey: sa.private_key.replace(/\\n/g, "\n"),
+				}),
+				// ★ bucket名は ".appspot.com" が正しい（ドメインではなくバケット名）
+				storageBucket: `${sa.project_id}.appspot.com`,
+				projectId: sa.project_id,
+			},
+			"pawticket-app"
+		);
+	}
 
-function getAppByName(name: string): admin.app.App | undefined {
-	return admin.apps.find((app) => app?.name === name) || undefined;
-}
-
-// 管理用Admin
-const ptAdminApp =
-	getAppByName("pt-admin") ??
-	admin.initializeApp(
+	// 2) ADC：GCP上ではこれでOK（関数のサービスアカウントに権限を付ける）
+	//    ※ pt-admin の関数から pawticket にアクセスするなら、pt-admin のSAに pawticket 側の権限を付与するか、
+	//       上の環境変数JSON（pawticket SA）で初期化してください。
+	return admin.initializeApp(
 		{
-			credential: admin.credential.cert({
-				projectId: ptAdminServiceAccount.project_id,
-				clientEmail: ptAdminServiceAccount.client_email,
-				privateKey: ptAdminServiceAccount.private_key.replace(
-					/\\n/g,
-					"\n"
-				),
-			}),
-			storageBucket: "pt-admin-4d877.firebasestorage.app",
-		},
-		"pt-admin"
-	);
-
-// アプリ用Admin
-const pawticketApp =
-	getAppByName("pawticket-app") ??
-	admin.initializeApp(
-		{
+			credential: admin.credential.applicationDefault(),
 			projectId: "pawticket-6b651",
-			storageBucket: "pawticket-6b651.firebasestorage.app",
+			storageBucket: "pawticket-6b651.appspot.com", // ← 修正ポイント
 		},
 		"pawticket-app"
 	);
+}
 
-// デバッグ情報を出力
-console.log("Firebase Admin SDK 初期化完了:", {
-	ptAdminProjectId: ptAdminApp.options.projectId,
-	pawticketProjectId: pawticketApp.options.projectId,
+const pawticketApp = initPawticketApp();
+
+// 余計な秘密情報ログは出さない（鍵長やclientEmail等はログに残さない）
+console.log("Firebase Admin initialized:", {
+	appName: pawticketApp.name,
+	projectId: pawticketApp.options.projectId,
+	hasCredential: Boolean(pawticketApp.options.credential),
+	// storageBucket: pawticketApp.options.storageBucket, // 必要なら
 });
-
-// エクスポート
-export const ptAdminAuth = ptAdminApp.auth();
-export const ptAdminDb = ptAdminApp.firestore();
-export const ptAdminStorage = ptAdminApp.storage();
 
 export const pawticketAuth = pawticketApp.auth();
 export const pawticketDb = pawticketApp.firestore();
