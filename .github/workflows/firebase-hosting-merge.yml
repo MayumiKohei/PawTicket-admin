@@ -1,81 +1,65 @@
 name: Deploy to Firebase on merge
 on:
     push:
-        branches:
-            - main
+        branches: [main]
 
 jobs:
     build_and_deploy:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write # ← auth@v2 に必要
+
         steps:
             - uses: actions/checkout@v4
 
-            # ────────────────────────────────────────────
-            # ２つのサービスアカウント JSON を Secrets から書き出し
-            - name: Write Firebase Service Accounts
-              env:
-                  PT_ADMIN_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
-                  PAWTICKET_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PAWTICKET_APP_6B651 }}
-              run: |
-                  mkdir -p firebase-admin
-                  echo "$PT_ADMIN_JSON"   > firebase-admin/pt-admin-firebase.json
-                  echo "$PAWTICKET_JSON"  > firebase-admin/pawticket-app-firebase.json
-                  chmod 600 firebase-admin/*.json
-            # ────────────────────────────────────────────
-            - run: yarn install --frozen-lockfile && yarn build
+            - name: Use Node 20
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "yarn"
 
-            # ────────────────────────────────────────────
-            # Functions をデプロイ
+            # ルートの依存＆Next.jsビルド
+            - run: yarn install --frozen-lockfile
+            - run: yarn build
+              env:
+                  NEXT_TELEMETRY_DISABLED: "1"
+
+            # Firebase CLI
             - name: Install Firebase CLI
               run: npm install -g firebase-tools
 
-            - name: Authenticate to GCP for Functions
+            # GCP認証（サービスアカウントJSONを使う場合）
+            # Workload Identity を使うなら workload_identity_provider / service_account を使う書式に変更
+            - name: Authenticate to Google Cloud
+              id: auth
               uses: google-github-actions/auth@v2
               with:
                   credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
 
-            - name: Write Functions Service Account
-              env:
-                  PAWTICKET_SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PAWTICKET_APP_6B651 }}
-              run: |
-                  echo "$PAWTICKET_SA_JSON" > functions/sa.json
-                  chmod 600 functions/sa.json
+            # Firebase CLI が ADC を拾えるように環境変数をセット
+            - name: Export ADC path for Firebase CLI
+              run: echo "GOOGLE_APPLICATION_CREDENTIALS=${{ steps.auth.outputs.credentials_file_path }}" >> $GITHUB_ENV
 
+            # Functions 依存＆ビルド
             - name: Install Functions dependencies
               working-directory: functions
               run: yarn install --frozen-lockfile
 
             - name: Build Functions
               working-directory: functions
-              run: yarn next build
+              run: yarn build # ← functions/package.json の "build": "tsc" 等に合わせる
 
+            # Deploy Functions (Gen2)
             - name: Deploy Functions (Gen2)
-              working-directory: functions
-              env:
-                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-                  GOOGLE_APPLICATION_CREDENTIALS: /workspace/sa.json
               run: |
-                  yarn install --frozen-lockfile
-                  npx firebase deploy \
-                  --only functions \
-                  --project pt-admin-4d877 \
-                  --token "$FIREBASE_TOKEN"
-            # ────────────────────────────────────────────
-            # ────────────────────────────────────────────
-            # Hosting をデプロイ（Functionsの後に移動！）
-            # - name: Deploy Hosting
-            #   uses: FirebaseExtended/action-hosting-deploy@v0
-            #   with:
-            #       repoToken: ${{ secrets.GITHUB_TOKEN }}
-            #       firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
-            #       projectId: pt-admin-4d877
-            #       channelId: live
+                  firebase deploy \
+                    --only functions \
+                    --project pt-admin-4d877
+
+            # Deploy Hosting（必要なら）
             - name: Deploy Hosting
-              env:
-                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
               run: |
-                  npx firebase deploy \
-                  --only hosting \
-                  --project pt-admin-4d877 \
-                  --token "$FIREBASE_TOKEN"
-              # ────────────────────────────────────────────
+                  firebase deploy \
+                    --only hosting \
+                    --project pt-admin-4d877
