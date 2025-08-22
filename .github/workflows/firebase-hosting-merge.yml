@@ -46,22 +46,24 @@ jobs:
               working-directory: functions
               run: yarn install --frozen-lockfile
 
-            # Deploy Functions (Gen2)
+            # （任意）バージョン表示
+            - run: firebase --version
+
+            # Functions デプロイ（FIREBASE_TOKEN を使用）
             - name: Deploy Functions (Gen2)
               env:
-                  FIREBASE_TOKEN: ${{ steps.auth.outputs.access_token }}
+                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }} # ← firebase login:ci で取得したもの
               run: |
                   firebase deploy \
                     --only functions \
                     --project pt-admin-4d877 \
                     --non-interactive
 
-            # Deploy Hosting
+            # Hosting デプロイ（サービスアカウントでOK：トークン不要）
             - name: Deploy Hosting
-              env:
-                  FIREBASE_TOKEN: ${{ steps.auth.outputs.access_token }}
-              run: |
-                  firebase deploy \
-                    --only hosting \
-                    --project pt-admin-4d877 \
-                    --non-interactive
+              uses: FirebaseExtended/action-hosting-deploy@v0
+              with:
+                  repoToken: ${{ secrets.GITHUB_TOKEN }}
+                  firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PT_ADMIN_4D877 }}
+                  projectId: pt-admin-4d877
+                  channelId: live
