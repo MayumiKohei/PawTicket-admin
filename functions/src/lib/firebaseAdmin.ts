@@ -1,80 +1,63 @@
 // lib/firebaseAdmin.ts
-import { readFileSync } from "fs";
-import { join } from "path";
 import * as admin from "firebase-admin";
-// import "firebase/storage";
 
-function getAppByName(name: string): admin.app.App | undefined {
-	return admin.apps.find((app) => app?.name === name) || undefined;
-}
+/**
+ * 推奨：環境変数 FIREBASE_SERVICE_ACCOUNT_JSON（pawticket用のSA JSON丸ごと）を使う。
+ * 無ければ ADC（Application Default Credentials）にフォールバック。
+ *
+ * - GCP上（Cloud Functions/Run/Hosting(SSR)）では initializeApp() だけでOK（ADC）。
+ * - ローカルは `gcloud auth application-default login` でもOK。必要なら env に JSON を入れる。
+ */
+function initPawticketApp(): admin.app.App {
+	const existing = admin.apps.find((a) => a?.name === "pawticket-app");
+	if (existing) return existing;
 
-// 認証方法を決定する関数
-function getPawticketCredential(): admin.credential.Credential {
-	// 1. GOOGLE_APPLICATION_CREDENTIALS が設定されている場合は Application Default Credentials を使用
-	if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-		console.log(
-			"GOOGLE_APPLICATION_CREDENTIALSを使用してFirebase Admin SDKを初期化"
+	// 1) 環境変数JSON（最優先）：鍵ファイルを置かないためのやり方
+	const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+	if (json) {
+		const sa = JSON.parse(json) as {
+			project_id: string;
+			client_email: string;
+			private_key: string;
+		};
+		return admin.initializeApp(
+			{
+				credential: admin.credential.cert({
+					projectId: sa.project_id,
+					clientEmail: sa.client_email,
+					privateKey: sa.private_key.replace(/\\n/g, "\n"),
+				}),
+				// ★ bucket名は ".appspot.com" が正しい（ドメインではなくバケット名）
+				storageBucket: `${sa.project_id}.appspot.com`,
+				projectId: sa.project_id,
+			},
+			"pawticket-app"
 		);
-		return admin.credential.applicationDefault();
 	}
 
-	// 2. 環境変数が設定されている場合は環境変数を使用
-	if (
-		process.env.FIREBASE_PROJECT_ID &&
-		process.env.FIREBASE_CLIENT_EMAIL &&
-		process.env.FIREBASE_PRIVATE_KEY
-	) {
-		console.log("環境変数を使用してFirebase Admin SDKを初期化");
-		return admin.credential.cert({
-			projectId: process.env.FIREBASE_PROJECT_ID,
-			clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-			privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-		});
-	}
-
-	// 3. sa.jsonファイルが存在する場合はsa.jsonを使用
-	const saPath = join(process.cwd(), "sa.json");
-	try {
-		const saRaw = readFileSync(saPath, { encoding: "utf-8" });
-		const saServiceAccount = JSON.parse(saRaw);
-		console.log("sa.jsonを使用してFirebase Admin SDKを初期化");
-		return admin.credential.cert({
-			projectId: saServiceAccount.project_id,
-			clientEmail: saServiceAccount.client_email,
-			privateKey: saServiceAccount.private_key.replace(/\\n/g, "\n"),
-		});
-	} catch (error) {
-		console.log(
-			"sa.jsonが見つからないため、Application Default Credentialsを使用"
-		);
-		return admin.credential.applicationDefault();
-	}
-}
-
-// アプリ用Admin - 包括的な認証方法を使用
-const pawticketApp =
-	getAppByName("pawticket-app") ??
-	admin.initializeApp(
+	// 2) ADC：GCP上ではこれでOK（関数のサービスアカウントに権限を付ける）
+	//    ※ pt-admin の関数から pawticket にアクセスするなら、pt-admin のSAに pawticket 側の権限を付与するか、
+	//       上の環境変数JSON（pawticket SA）で初期化してください。
+	return admin.initializeApp(
 		{
-			credential: getPawticketCredential(),
+			credential: admin.credential.applicationDefault(),
 			projectId: "pawticket-6b651",
-			storageBucket: "pawticket-6b651.firebasestorage.app",
+			storageBucket: "pawticket-6b651.appspot.com", // ← 修正ポイント
 		},
 		"pawticket-app"
 	);
+}
 
-// デバッグ情報を出力
-console.log("Firebase Admin SDK 初期化完了:", {
-	pawticketProjectId: pawticketApp.options.projectId,
-	credentialType: pawticketApp.options.credential ? "設定済み" : "未設定",
+const pawticketApp = initPawticketApp();
+
+// 余計な秘密情報ログは出さない（鍵長やclientEmail等はログに残さない）
+console.log("Firebase Admin initialized:", {
+	appName: pawticketApp.name,
+	projectId: pawticketApp.options.projectId,
+	hasCredential: Boolean(pawticketApp.options.credential),
+	// storageBucket: pawticketApp.options.storageBucket, // 必要なら
 });
 
-// エクスポート
 export const pawticketAuth = pawticketApp.auth();
 export const pawticketDb = pawticketApp.firestore();
 export const pawticketStorage = pawticketApp.storage();
-
-// グローバル変数として設定（Next.js API ルートで使用）
-if (typeof global !== "undefined") {
-	(global as any).pawticketDb = pawticketDb;
-}
