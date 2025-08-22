@@ -3,10 +3,8 @@
     {
       "source": "functions",
       "codebase": "api",
-      "platform": "gcfv2",
       "runtime": "nodejs20",
       "region": "us-central1",
-      "dockerRegistry": "ARTIFACT_REGISTRY",
       "memory": "512MiB",
       "ignore": [
         "node_modules",
@@ -24,15 +22,12 @@
     "rewrites": [
       {
         "source": "/api/**",
-        "functionId": "api",
+        "function": "api",
         "region": "us-central1"
       },
       {
         "source": "**",
-        "run": {
-          "serviceId": "nextjsfunc",
-          "region": "us-central1"
-        }
+        "run": { "serviceId": "nextjsfunc", "region": "us-central1" }
       }
     ]
   }
