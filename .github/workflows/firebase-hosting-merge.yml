@@ -55,7 +55,7 @@ jobs:
                   FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }} # ← firebase login:ci で取得したもの
               run: |
                   firebase deploy \
-                    --only functions \
+                    --only functions:api \
                     --project pt-admin-4d877 \
                     --non-interactive
 

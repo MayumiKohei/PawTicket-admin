@@ -2,31 +2,31 @@
   "functions": [
     {
       "source": "functions",
+      "codebase": "api",
       "platform": "gcfv2",
       "runtime": "nodejs20",
       "region": "us-central1",
       "dockerRegistry": "ARTIFACT_REGISTRY",
       "memory": "512MiB",
-      "environmentVariables": {
-        "GOOGLE_APPLICATION_CREDENTIALS": "/workspace/sa.json"
-      },
       "ignore": [
         "node_modules",
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log",
-        "*.local"
+        "*.local",
+        ".env*"
       ]
     }
   ],
   "hosting": {
     "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
+      {
+        "source": "/api/**",
+        "functionId": "api",
+        "region": "us-central1"
+      },
       {
         "source": "**",
         "run": {
