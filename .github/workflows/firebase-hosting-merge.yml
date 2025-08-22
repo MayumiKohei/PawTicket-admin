@@ -48,16 +48,13 @@ jobs:
 
             # Deploy Functions (Gen2)
             - name: Deploy Functions (Gen2)
+              env:
+                  FIREBASE_TOKEN: ${{ steps.auth.outputs.access_token }}
               run: |
                   firebase deploy \
                     --only functions \
                     --project pt-admin-4d877 \
-                    --region asia-northeast1 \
                     --non-interactive
-                    entrypoint: functions/src/index.handler
-                    source: functions
-                    build_command: yarn build
-                    install_command: yarn install --frozen-lockfile
 
             # Deploy Hosting
             - name: Deploy Hosting
