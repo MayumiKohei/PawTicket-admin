@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { pawticketStorage } from "@/lib/firebaseAdmin";
 
+// Node.js ランタイムで実行する
+export const runtime = "nodejs";
+
 const bucket = pawticketStorage.bucket();
 
 export async function POST(request: NextRequest) {
