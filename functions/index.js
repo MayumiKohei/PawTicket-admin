@@ -1,78 +1,71 @@
-const express = require('express');
-const admin = require('firebase-admin');
-const next = require('next');
+'use strict';
 
-// Firebase Admin 初期化
+const express = require('express');
+const { onRequest } = require('firebase-functions/v2/https');
+const { setGlobalOptions } = require('firebase-functions/v2');
+const admin = require('firebase-admin');
+
+// Functions 全体のデフォルト設定
+setGlobalOptions({
+  region: 'us-central1',
+  memory: '512MiB',
+  timeoutSeconds: 60,
+  // minInstances: 1, // コールドスタートを避けたい場合に検討
+});
+
+// 本番（GCP）では ADC により資格情報が提供されるため initializeApp() だけでもOK。
+// ここでは明示的に対象プロジェクト/バケットを指定しています。
+// ※ 別プロジェクト（pawticket-6b651）にアクセスする場合は、実行SAにクロスプロジェクトの権限付与が必要です。
 if (!admin.apps.length) {
-  // 本番環境では自動的にサービスアカウントが使用される
   admin.initializeApp({
-    projectId: "pawticket-6b651",
-    storageBucket: "pawticket-6b651.firebasestorage.app",
+    projectId: 'pawticket-6b651',
+    storageBucket: 'pawticket-6b651.appspot.com', // ← ドメインではなく "バケット名"
   });
 }
 const db = admin.firestore();
 
-// pawticket-app プロジェクト用の Admin SDK 初期化は functions/src/lib/firebaseAdmin.ts で行う
-// グローバル変数として設定（Next.js API ルートで使用）
-global.pawticketDb = null; // 初期化は functions/src/lib/firebaseAdmin.ts で行う
-
-// Next.js アプリを最初に初期化
-const dev = process.env.NODE_ENV !== 'production';
-const nextApp = next({ dev, conf: { distDir: '.next' } });
-const handle = nextApp.getRequestHandler();
-
-// Next.jsアプリを事前に準備
-let isNextAppReady = false;
-const prepareNextApp = async () => {
-  if (!isNextAppReady) {
-    await nextApp.prepare();
-    isNextAppReady = true;
-  }
-};
-
-// Express アプリ作成
 const app = express();
 app.use(express.json());
 
-// お知らせ CRUD エンドポイント
-app.get('/api/announcements', async (req, res) => {
+/** GET /api/announcements */
+app.get('/api/announcements', async (_req, res) => {
   try {
-    const snapshot = await db
-      .collection('announcements')
-      .orderBy('date', 'desc')
-      .get();
-    const announcements = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const snap = await db.collection('announcements').orderBy('date', 'desc').get();
+    const announcements = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     res.json({ success: true, announcements });
-  } catch (error) {
-    console.error('Get announcements error:', error);
-    res.status(500).json({ success: false, message: String(error) });
+  } catch (err) {
+    console.error('Get announcements error:', err);
+    res.status(500).json({ success: false, message: String(err) });
   }
 });
 
+/** POST /api/announcements  body: { title, date, photoUrl?, body } */
 app.post('/api/announcements', async (req, res) => {
   try {
-    const { title, date, photoUrl, body } = req.body;
+    const { title, date, photoUrl, body } = req.body ?? {};
     if (!title || !date || !body) {
       return res.status(400).json({ success: false, message: '必須項目が不足しています' });
     }
+    const now = new Date();
     const docRef = await db.collection('announcements').add({
       title,
-      date,
+      date, // 文字列 or Timestamp。必要に応じて new admin.firestore.Timestamp.fromDate(...)
       photoUrl: photoUrl || null,
       body,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     });
     res.json({ success: true, id: docRef.id });
-  } catch (error) {
-    console.error('Create announcement error:', error);
-    res.status(500).json({ success: false, message: String(error) });
+  } catch (err) {
+    console.error('Create announcement error:', err);
+    res.status(500).json({ success: false, message: String(err) });
   }
 });
 
+/** PUT /api/announcements  body: { id, title, date, photoUrl?, body } */
 app.put('/api/announcements', async (req, res) => {
   try {
-    const { id, title, date, photoUrl, body } = req.body;
+    const { id, title, date, photoUrl, body } = req.body ?? {};
     if (!id || !title || !date || !body) {
       return res.status(400).json({ success: false, message: '必須項目が不足しています' });
     }
@@ -84,45 +77,27 @@ app.put('/api/announcements', async (req, res) => {
       updatedAt: new Date(),
     });
     res.json({ success: true });
-  } catch (error) {
-    console.error('Update announcement error:', error);
-    res.status(500).json({ success: false, message: String(error) });
+  } catch (err) {
+    console.error('Update announcement error:', err);
+    res.status(500).json({ success: false, message: String(err) });
   }
 });
 
+/** DELETE /api/announcements  body: { id } */
 app.delete('/api/announcements', async (req, res) => {
   try {
-    const { id } = req.body;
-    if (!id) {
-      return res.status(400).json({ success: false, message: 'IDが必要です' });
-    }
+    const { id } = req.body ?? {};
+    if (!id) return res.status(400).json({ success: false, message: 'IDが必要です' });
     await db.collection('announcements').doc(id).delete();
     res.json({ success: true });
-  } catch (error) {
-    console.error('Delete announcement error:', error);
-    res.status(500).json({ success: false, message: String(error) });
+  } catch (err) {
+    console.error('Delete announcement error:', err);
+    res.status(500).json({ success: false, message: String(err) });
   }
 });
 
-// Next.js SSR 用ハンドラ（すべてのその他のルートをキャッチ）
-app.all('*', async (req, res) => {
-  try {
-    await prepareNextApp();
-    return handle(req, res);
-  } catch (error) {
-    console.error('Next.js SSR Error:', error);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
-});
-
-// Firebase Functionsとしてエクスポート
-const functions = require('firebase-functions/v2');
-exports.nextjsfunc = functions.https.onRequest({
-  memory: '512MiB',
-  timeoutSeconds: 60,
-  region: 'us-central1'  // firebase.jsonと一致させる
-}, app);
+/**
+ * エクスポート名は "api" 等の別名にする（"nextjsfunc" は使わない）。
+ * Hosting（Frameworks）が SSR 用に生成する関数と衝突しないようにするため。
+ */
+exports.api = onRequest(app);
