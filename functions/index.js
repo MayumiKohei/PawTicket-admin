@@ -2,33 +2,37 @@
 
 const express = require('express');
 const { onRequest } = require('firebase-functions/v2/https');
-const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
 
-// Functions 全体のデフォルト設定
-setGlobalOptions({
-  region: 'us-central1',
-  memory: '512MiB',
-  timeoutSeconds: 60,
-  // minInstances: 1, // コールドスタートを避けたい場合に検討
-});
-
-// 本番（GCP）では ADC により資格情報が提供されるため initializeApp() だけでもOK。
-// ここでは明示的に対象プロジェクト/バケットを指定しています。
-// ※ 別プロジェクト（pawticket-6b651）にアクセスする場合は、実行SAにクロスプロジェクトの権限付与が必要です。
+/**
+ * Firebase Admin 初期化（ADC / クロスプロジェクト）
+ * - ここでは「pawticket-6b651」の Firestore/Storage にアクセスしたい想定。
+ * - Cloud Functions(Gen2) では Application Default Credentials(ADC) が使われるので
+ *   鍵ファイルは不要。実行SAに pawticket 側の権限を付与しておくこと。
+ *   例: roles/datastore.user（必要に応じて roles/firestore.user）
+ */
 if (!admin.apps.length) {
   admin.initializeApp({
+    // ★ 認証は ADC（デフォルト）を使用するので、credential は渡さない
     projectId: 'pawticket-6b651',
-    storageBucket: 'pawticket-6b651.firebasestorage.app', // ← ドメインではなく "バケット名"
+    // 新形式のデフォルトバケット名（Firebase コンソールの表示に合わせる）
+    storageBucket: 'pawticket-6b651.firebasestorage.app',
   });
 }
+const app = admin.app();
 const db = admin.firestore();
 
-const app = express();
-app.use(express.json());
+// デバッグ：どの認証経路か確認（本番でも harmless な範囲で）
+console.log('Functions Admin initialized:', {
+  projectId: app.options.projectId,
+  credentialClass: app.options.credential?.constructor?.name, // 例: GoogleAuthCredential = ADC
+});
+
+const api = express();
+api.use(express.json());
 
 /** GET /api/announcements */
-app.get('/api/announcements', async (_req, res) => {
+api.get('/api/announcements', async (_req, res) => {
   try {
     const snap = await db.collection('announcements').orderBy('date', 'desc').get();
     const announcements = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -40,7 +44,7 @@ app.get('/api/announcements', async (_req, res) => {
 });
 
 /** POST /api/announcements  body: { title, date, photoUrl?, body } */
-app.post('/api/announcements', async (req, res) => {
+api.post('/api/announcements', async (req, res) => {
   try {
     const { title, date, photoUrl, body } = req.body ?? {};
     if (!title || !date || !body) {
@@ -49,7 +53,7 @@ app.post('/api/announcements', async (req, res) => {
     const now = new Date();
     const docRef = await db.collection('announcements').add({
       title,
-      date, // 文字列 or Timestamp。必要に応じて new admin.firestore.Timestamp.fromDate(...)
+      date,
       photoUrl: photoUrl || null,
       body,
       createdAt: now,
@@ -63,7 +67,7 @@ app.post('/api/announcements', async (req, res) => {
 });
 
 /** PUT /api/announcements  body: { id, title, date, photoUrl?, body } */
-app.put('/api/announcements', async (req, res) => {
+api.put('/api/announcements', async (req, res) => {
   try {
     const { id, title, date, photoUrl, body } = req.body ?? {};
     if (!id || !title || !date || !body) {
@@ -84,7 +88,7 @@ app.put('/api/announcements', async (req, res) => {
 });
 
 /** DELETE /api/announcements  body: { id } */
-app.delete('/api/announcements', async (req, res) => {
+api.delete('/api/announcements', async (req, res) => {
   try {
     const { id } = req.body ?? {};
     if (!id) return res.status(400).json({ success: false, message: 'IDが必要です' });
@@ -97,7 +101,10 @@ app.delete('/api/announcements', async (req, res) => {
 });
 
 /**
- * エクスポート名は "api" 等の別名にする（"nextjsfunc" は使わない）。
- * Hosting（Frameworks）が SSR 用に生成する関数と衝突しないようにするため。
+ * エクスポート名は "api" など（"nextjsfunc" は使わない）。
+ * リージョンやメモリは per-function オプションで指定（firebase.json では指定しない）。
  */
-exports.api = onRequest(app);
+exports.api = onRequest(
+  { region: 'us-central1', memory: '512MiB', timeoutSeconds: 60 },
+  api
+);
