@@ -1,48 +1,61 @@
-// lib/firebaseAdmin.ts
 import * as admin from "firebase-admin";
 
 /**
- * 推奨：環境変数 FIREBASE_SERVICE_ACCOUNT_JSON（pawticket用のSA JSON丸ごと）を使う。
- * 無ければ ADC（Application Default Credentials）にフォールバック。
+ * Firebase Admin（pawticket 用）初期化
+ * 優先順位:
+ *   1) 環境変数 FIREBASE_SERVICE_ACCOUNT_JSON に入っているSA JSON（鍵ファイルは置かない）
+ *   2) ADC（Application Default Credentials）
  *
- * - GCP上（Cloud Functions/Run/Hosting(SSR)）では initializeApp() だけでOK（ADC）。
- * - ローカルは `gcloud auth application-default login` でもOK。必要なら env に JSON を入れる。
+ * 本番（Hosting/Cloud Run/Functions）では 2) の ADC が使われます。
+ * その場合は「実行サービスアカウント」に pawticket 側プロジェクトへの権限を付与してください。
  */
 function initPawticketApp(): admin.app.App {
-	const existing = admin.apps.find((a) => a?.name === "pawticket-app");
-	if (existing) return existing;
-
-	// 1) 環境変数JSON（最優先）：鍵ファイルを置かないためのやり方
-	const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-	if (json) {
-		const sa = JSON.parse(json) as {
-			project_id: string;
-			client_email: string;
-			private_key: string;
-		};
-		return admin.initializeApp(
-			{
-				credential: admin.credential.cert({
-					projectId: sa.project_id,
-					clientEmail: sa.client_email,
-					privateKey: sa.private_key.replace(/\\n/g, "\n"),
-				}),
-				// ★ bucket名は ".appspot.com" が正しい（ドメインではなくバケット名）
-				storageBucket: `${sa.project_id}.appspot.com`,
-				projectId: sa.project_id,
-			},
-			"pawticket-app"
-		);
+	// 既に初期化済みならそれを使う（開発時のホットリロード対策）
+	try {
+		return admin.app("pawticket-app");
+	} catch {
+		/* noop - 未初期化なので続行 */
 	}
 
-	// 2) ADC：GCP上ではこれでOK（関数のサービスアカウントに権限を付ける）
-	//    ※ pt-admin の関数から pawticket にアクセスするなら、pt-admin のSAに pawticket 側の権限を付与するか、
-	//       上の環境変数JSON（pawticket SA）で初期化してください。
+	// 1) 環境変数のサービスアカウント JSON を優先
+	const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+	if (json) {
+		try {
+			const sa = JSON.parse(json) as {
+				project_id: string;
+				client_email: string;
+				private_key: string;
+			};
+
+			return admin.initializeApp(
+				{
+					credential: admin.credential.cert({
+						projectId: sa.project_id,
+						clientEmail: sa.client_email,
+						privateKey: sa.private_key.replace(/\\n/g, "\n"),
+					}),
+					storageBucket: `${sa.project_id}.firebasestorage.app`,
+					projectId: sa.project_id,
+				},
+				"pawticket-app"
+			);
+		} catch (e) {
+			// JSON が壊れていても停止させず ADC にフォールバック
+			console.warn(
+				"FIREBASE_SERVICE_ACCOUNT_JSON の解析に失敗。ADC にフォールバックします。",
+				e instanceof Error ? e.message : e
+			);
+		}
+	}
+
+	// 2) ADC（Application Default Credentials）
+	// Cloud Run/Hosting(SSR)/Functions 上ではこれでOK。
+	// ※ クロスプロジェクトアクセス時は、実行SAに pawticket-6b651 側の権限付与が必要。
 	return admin.initializeApp(
 		{
 			credential: admin.credential.applicationDefault(),
 			projectId: "pawticket-6b651",
-			storageBucket: "pawticket-6b651.appspot.com", // ← 修正ポイント
+			storageBucket: "pawticket-6b651.firebasestorage.app",
 		},
 		"pawticket-app"
 	);
@@ -50,12 +63,11 @@ function initPawticketApp(): admin.app.App {
 
 const pawticketApp = initPawticketApp();
 
-// 余計な秘密情報ログは出さない（鍵長やclientEmail等はログに残さない）
+// 秘密情報は出さずに、どの認証経路かだけを軽くログ
 console.log("Firebase Admin initialized:", {
 	appName: pawticketApp.name,
 	projectId: pawticketApp.options.projectId,
-	hasCredential: Boolean(pawticketApp.options.credential),
-	// storageBucket: pawticketApp.options.storageBucket, // 必要なら
+	credentialClass: pawticketApp.options.credential?.constructor?.name, // 例: "GoogleAuthCredential" なら ADC
 });
 
 export const pawticketAuth = pawticketApp.auth();

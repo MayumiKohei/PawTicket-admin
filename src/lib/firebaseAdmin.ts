@@ -35,7 +35,6 @@ function initPawticketApp(): admin.app.App {
 						clientEmail: sa.client_email,
 						privateKey: sa.private_key.replace(/\\n/g, "\n"),
 					}),
-					// バケット名は <project>.appspot.com（ドメインではなくバケット名）
 					storageBucket: `${sa.project_id}.firebasestorage.app`,
 					projectId: sa.project_id,
 				},

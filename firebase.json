@@ -17,8 +17,7 @@
 		}
 	],
 	"hosting": {
-		"public": "public",
-		"ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+		"source": ".",
 		"rewrites": [
 			{
 				"source": "/api/announcements",
@@ -29,10 +28,6 @@
 				"source": "/api/announcements/**",
 				"function": "api",
 				"region": "us-central1"
-			},
-			{
-				"source": "**",
-				"run": { "serviceId": "nextjsfunc", "region": "us-central1" }
 			}
 		]
 	}
