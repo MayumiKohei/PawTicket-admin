@@ -36,7 +36,7 @@ function initPawticketApp(): admin.app.App {
 						privateKey: sa.private_key.replace(/\\n/g, "\n"),
 					}),
 					// バケット名は <project>.appspot.com（ドメインではなくバケット名）
-					storageBucket: `${sa.project_id}.appspot.com`,
+					storageBucket: `${sa.project_id}.firebasestorage.app`,
 					projectId: sa.project_id,
 				},
 				"pawticket-app"
@@ -57,7 +57,7 @@ function initPawticketApp(): admin.app.App {
 		{
 			credential: admin.credential.applicationDefault(),
 			projectId: "pawticket-6b651",
-			storageBucket: "pawticket-6b651.appspot.com",
+			storageBucket: "pawticket-6b651.firebasestorage.app",
 		},
 		"pawticket-app"
 	);
