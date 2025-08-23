@@ -19,7 +19,7 @@ setGlobalOptions({
 if (!admin.apps.length) {
   admin.initializeApp({
     projectId: 'pawticket-6b651',
-    storageBucket: 'pawticket-6b651.appspot.com', // ← ドメインではなく "バケット名"
+    storageBucket: 'pawticket-6b651.firebasestorage.app', // ← ドメインではなく "バケット名"
   });
 }
 const db = admin.firestore();
