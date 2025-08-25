@@ -386,6 +386,7 @@ const PetDetailModal = ({
 												)
 											}
 											style={{ cursor: "pointer" }}
+											unoptimized
 										/>
 									</div>
 								</div>
@@ -435,6 +436,7 @@ const PetDetailModal = ({
 												)
 											}
 											style={{ cursor: "pointer" }}
+											unoptimized
 										/>
 									</div>
 								</div>

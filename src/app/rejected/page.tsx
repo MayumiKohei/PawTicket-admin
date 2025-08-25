@@ -91,6 +91,7 @@ const PhotoModal = ({
 							maxHeight: "80vh",
 							objectFit: "contain",
 						}}
+						unoptimized
 					/>
 				</div>
 			</div>
@@ -436,6 +437,7 @@ const PetDetailModal = ({
 												alt="狂犬病ワクチン証明書"
 												width={150}
 												height={100}
+												unoptimized
 											/>
 										</button>
 									</div>
@@ -501,6 +503,7 @@ const PetDetailModal = ({
 												alt="混合ワクチン証明書"
 												width={150}
 												height={100}
+												unoptimized
 											/>
 										</button>
 									</div>

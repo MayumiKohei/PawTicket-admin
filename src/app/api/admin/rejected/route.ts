@@ -27,7 +27,7 @@ export async function GET() {
 					.collection("users")
 					.doc(userDoc.id)
 					.collection("pets")
-					.where("status", "==", "無効")
+					.where("status", "==", "却下済み")
 					.get();
 
 				petsSnapshot.docs.forEach((petDoc) => {

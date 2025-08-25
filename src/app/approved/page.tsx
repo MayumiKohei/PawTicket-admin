@@ -214,6 +214,7 @@ const PetDetailModal = ({
 												className={
 													localStyles.vaccineThumbnail
 												}
+												unoptimized
 											/>
 										</button>
 									</div>
@@ -267,6 +268,7 @@ const PetDetailModal = ({
 												className={
 													localStyles.vaccineThumbnail
 												}
+												unoptimized
 											/>
 										</button>
 									</div>
